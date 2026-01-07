@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="Flany/Flany.vcxproj" Id="3c3ca359-771a-45ac-86b8-211dfb71a377" />
+</Solution>
