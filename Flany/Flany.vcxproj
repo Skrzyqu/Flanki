@@ -156,9 +156,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Flany.cpp" />
+    <ClCompile Include="gra.cpp" />
     <ClCompile Include="odbicie.cpp" />
+    <ClCompile Include="pocisk.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="gra.h" />
     <ClInclude Include="pocisk.h" />
     <ClInclude Include="przeszkoda.h" />
   </ItemGroup>

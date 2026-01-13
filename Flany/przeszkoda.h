@@ -1,6 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-//kalsa odpowaiadajaca za przeszkody
+//klasa odpowaiadajaca za przeszkody
 class przeszkoda
 {
 public:
