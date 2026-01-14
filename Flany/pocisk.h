@@ -1,14 +1,43 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include "przeszkoda.h"
+
 constexpr auto precyzja = 36.32f; //wartosc przy której pocisk nie odbija sie juz od podloza
+constexpr float MAX_NACIAG = 100.0f; //maksymalny naciag luku
+
+//klasa zarzadzajaca pociskiem
 class pocisk
 	{
 	public:
+		// --- FIZYKA POCISKU ---
 		sf::Vector2f pozycja;
 		sf::Vector2f predkosc;
-		sf::CircleShape lotka{ 30.0f };
+		sf::CircleShape lotka{ 10.0f };
 
+		// --- STANY POCISKU ---
+		bool czyLeci = false;
+		bool czyCeluje = false;
+		sf::Vector2f pozycjaStartowa;
 
+		//konstruktor
+		pocisk(float x, float y, sf::Color kolor);
+
+		//funkcja obslugujaca myszke
+		void obsluzWejscie(sf::Event event, const sf::RenderWindow& okno);
+		//glowna petla fizyki dla pocisku
+		void aktualizujFizyke(sf::RenderWindow& okno, przeszkoda& cel, sf::Vector2f grawitacja);
+		//rysowanie bialej linii naciagu
+		void rysujCelowanie(sf::RenderWindow& okno);
+
+		void resetuj();
+	private:
+		//funkcje pomocnicze
+		void zmiana_pozycji();
+		void zmiana_predkosci(sf::Vector2f grawitacja);
+		void odbicie_podloze(sf::RenderWindow* okno);
+		void aktualizujPozycjeCelowania(const sf::RenderWindow& okno);
+		
+		/*
 		// =============================================================
 		//funkcja zmieniajaca predkosc pocisku
 		sf::Vector2f zmiana_predkosci(sf::Vector2f* predkosc, sf::Vector2f* sila)
@@ -62,7 +91,5 @@ class pocisk
 				}
 
 			}
-		}
-	};
-
-
+		} */
+	}; 

@@ -1,10 +1,11 @@
 #include "przeszkoda.h"
 #include "pocisk.h"
 #include <SFML/Graphics.hpp>
+#include <iostream>
 
 //funkcja odbicia pocisku od przeszkody
 
-static bool czyOdbicie(przeszkoda blok, pocisk lotka)
+/*static bool czyOdbicie(przeszkoda blok, pocisk lotka)
 {
 	if (lotka.pozycja.x + lotka.lotka.getRadius() *2 >= blok.pozycja.x && //sprawdzenie czy pocisk dotknal lewej krawedzi przeszkody
 		lotka.pozycja.x <= blok.pozycja.x + blok.rozmiar.x && //sprawdzenie czy pocisk dotknal prawej krawedzi przeszkody
@@ -21,12 +22,43 @@ static bool czyOdbicie(przeszkoda blok, pocisk lotka)
 	}
 }
 
-//funkcja odbicia pocisku od przeszkody
-static void odbicie_przeszkoda(pocisk* lotka, przeszkoda blok)
+static bool czyOdbicie(const przeszkoda& blok, const pocisk& lotka)
 {
-	if (czyOdbicie(blok, *lotka))
+	sf::FloatRect boundsPuszki = blok.blok.getGlobalBounds();
+	sf::FloatRect boundsLotki = lotka.lotka.getGlobalBounds();
+
+	return boundsPuszki.findIntersection(boundsLotki).has_value();
+}
+
+//funkcja odbicia pocisku od przeszkody
+static void odbicie_przeszkoda(pocisk* lotka, przeszkoda puszka)
+{
+	if (czyOdbicie(puszka, *lotka))
 	{
-		lotka->predkosc.x = lotka->predkosc.x * -0.85f;
-		lotka->predkosc.y = lotka->predkosc.y * -0.85f;
+		lotka->predkosc.x *= -0.6f;
+		lotka->predkosc.y *= -0.6f;
+
+		lotka->pozycja.y -= 2.0f;
+	}
+}*/
+static void odbicie_przeszkoda(pocisk* lotka, przeszkoda& puszka)
+{
+	// Pobieramy granice
+	sf::FloatRect granicePuszki = puszka.blok.getGlobalBounds();
+	sf::FloatRect graniceLotki = lotka->lotka.getGlobalBounds();
+
+	// Sprawdzamy czy na siebie nachodz¹
+	auto czyNachodza = granicePuszki.findIntersection(graniceLotki);
+
+	if (czyNachodza) // Jeœli jest kolizja
+	{
+		// 1. Wypisz w terminalu
+		std::cout << "TRAFIENIE! Resetuje lotke." << std::endl;
+
+		// 2. Zmieñ kolor puszki (opcjonalne, dla efektu)
+		puszka.czyTrafiona = true;
+
+		// 3. ZRESETUJ LOTKÊ (wraca na start i przestaje lecieæ)
+		//lotka->resetuj();
 	}
 }

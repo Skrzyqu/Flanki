@@ -1,2 +1,7 @@
 ﻿  Flany.cpp
-  Flany.vcxproj -> C:\Users\Filip\source\repos\Flany\x64\Debug\Flany.exe
+  gra.cpp
+  odbicie.cpp
+  pocisk.cpp
+  Generowanie kodu...
+  LINK : nie znaleziono elementu C:\Users\Michał\source\repos\Flanki\x64\Debug\Flany.exe ani nie został on skompilowany podczas ostatniego konsolidowania przyrostowego; zostanie wykonana pełna konsolidacja
+  Flany.vcxproj -> C:\Users\Michał\source\repos\Flanki\x64\Debug\Flany.exe
