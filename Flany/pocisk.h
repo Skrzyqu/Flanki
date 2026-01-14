@@ -25,17 +25,17 @@ class pocisk
 		//funkcja obslugujaca myszke
 		void obsluzWejscie(sf::Event event, const sf::RenderWindow& okno);
 		//glowna petla fizyki dla pocisku
-		void aktualizujFizyke(sf::RenderWindow& okno, przeszkoda& kamien, sf::Vector2f grawitacja);
+		void aktualizujFizyke(sf::RenderWindow& okno, przeszkoda& cel, sf::Vector2f grawitacja);
 		//rysowanie bialej linii naciagu
 		void rysujCelowanie(sf::RenderWindow& okno);
 
+		void resetuj();
 	private:
 		//funkcje pomocnicze
 		void zmiana_pozycji();
 		void zmiana_predkosci(sf::Vector2f grawitacja);
 		void odbicie_podloze(sf::RenderWindow* okno);
 		void aktualizujPozycjeCelowania(const sf::RenderWindow& okno);
-		void resetuj();
 		
 		/*
 		// =============================================================
@@ -93,5 +93,3 @@ class pocisk
 			}
 		} */
 	}; 
-
-

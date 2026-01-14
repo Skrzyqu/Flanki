@@ -1,6 +1,7 @@
 #include "pocisk.h"
 #include "odbicie.cpp"
 #include <cmath>
+#include <iostream>
 
 // Konstruktor - ustawia wartoœci startowe
 pocisk::pocisk(float x, float y, sf::Color kolor)
@@ -90,7 +91,7 @@ void pocisk::aktualizujPozycjeCelowania(const sf::RenderWindow& okno)
 }
 
 // G³ówna pêtla fizyki dla pocisku
-void pocisk::aktualizujFizyke(sf::RenderWindow& okno, przeszkoda& kamien, sf::Vector2f grawitacja)
+void pocisk::aktualizujFizyke(sf::RenderWindow& okno, przeszkoda& cel, sf::Vector2f grawitacja)
 {
     // Obs³uga logiki przed strza³em
     if (czyCeluje)
@@ -101,7 +102,7 @@ void pocisk::aktualizujFizyke(sf::RenderWindow& okno, przeszkoda& kamien, sf::Ve
     if (czyLeci)
     {
 		// Sprawdzenie kolizji z przeszkod¹
-        odbicie_przeszkoda(this, kamien);
+        odbicie_przeszkoda(this, cel);
 
 		// Aktualizacja pozycji i prêdkoœci
         zmiana_pozycji();

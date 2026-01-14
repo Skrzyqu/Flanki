@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include "pocisk.h"
 #include "przeszkoda.h"
+
 // Klasa zarz¹dzaj¹ca logik¹ gry
 class Gra
 {
@@ -9,18 +10,36 @@ public:
 	// --- Obiekty gry ---
     pocisk graczLewy;
     pocisk graczPrawy;
-    przeszkoda kamien;
+    przeszkoda puszka;
+
+    // --- PASKI PIWA ---
+    // T³o (pusta szklanka) i Wype³nienie (z³ocisty trunek)
+    sf::RectangleShape tloPaskaLewego, piwoLewe;
+    sf::RectangleShape tloPaskaPrawego, piwoPrawe;
+    // Poziom piwa (0 - 100)
+    float poziomLewego = 100.0f;
+    float poziomPrawego = 100.0f;
+    const float LYK_PIWA = 5.0f; // Ile piwa znika po jednym klikniêciu Entera
 
 	// --- UI / HUD ---
     sf::Font czcionka;
     sf::Text napisTury;
+    bool czyKoniecGry = false;
+    sf::Text napisWygranej;
 
 	// --- Stany gry ---
     bool turaLewego;
     bool strzalWTok;
+    bool fazaBiegania = false;
+    bool biegWStronePuszki = true;
+	float szybkoscBiegu = 40.0f;
 
-    // Konstruktor
-    Gra();
+    // --- NOWE ZMIENNE DLA BOTA ---
+    bool graZBotem = false; // Czy gramy z komputerem?
+    int licznikBota = 0;    // Do symulowania "klikania" przez bota
+
+    // Konstruktor przyjmuje teraz tryb gry
+    Gra(bool trybBot);
 
 	// G³ówne funkcje gry
 	//funkcja obslugujaca wejscie
@@ -34,4 +53,8 @@ private:
 	//funkcje pomocnicze
     void zmienTure(sf::RenderWindow& okno);
     void aktualizujNapis();
+	void obsluzBieganie();
+    void obsluzPicie();
+    void sprawdzWygrana();
+    void logikaBota(sf::RenderWindow& okno);
 };
