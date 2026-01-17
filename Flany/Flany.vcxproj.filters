@@ -33,6 +33,9 @@
     <ClCompile Include="bohater.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="poziomy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="przeszkoda.h">
@@ -48,6 +51,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="bohater.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="odbicie.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

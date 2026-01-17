@@ -2,10 +2,12 @@
 // FIXME: Include pliku .cpp jest b³êdem architektonicznym (narusza ODR). 
 // Kod z odbicie.cpp powinien byæ w odbicie.h lub skompilowany osobno.
 // Zostawiam bez zmian ze wzglêdu na wymogi zadania.
-#include "odbicie.cpp" 
+#include "odbicie.h" 
+#include "przeszkoda.h"
 
 #include <cmath>
 #include <iostream>
+#include <Windows.h>
 
 pocisk::pocisk(float x, float y, sf::Color kolor)
 {
@@ -168,20 +170,42 @@ void pocisk::zmiana_pozycji()
 void pocisk::odbicie_podloze(sf::RenderWindow* okno)
 {
     // Kolizja z pod³og¹
-    if (pozycja.y + lotka.getRadius() >= POZIOM_PODLOGI)
     {
-        // Odbicie z utrat¹ energii (Coefficient of Restitution = 0.7)
-        predkosc.y = predkosc.y * -0.7f;
-
-        // Korekcja penetracji (teleportacja na powierzchniê)
-        pozycja.y = POZIOM_PODLOGI - lotka.getRadius();
-
-        // Próg uœpienia (Sleep Threshold) - zapobieganie drganiom przy ma³ych prêdkoœciach
-        if ((fabs(predkosc.y) < precyzja))
+        // Sprawdzenie dolnej krawêdzi ekranu
+        if (pozycja.y + lotka.getRadius() >= POZIOM_PODLOGI)
         {
-            predkosc.y = 0.0f;
+            predkosc.y = predkosc.y * -0.3f;
+            std::cout << predkosc.y << std::endl;
+            // ZMIANA: Ustawiamy pi³kê na powierzchni naszej nowej pod³ogi
             pozycja.y = POZIOM_PODLOGI - lotka.getRadius();
+
+            if ((fabs(predkosc.y) < precyzja)) //precyzja ustawiona na 1.0f
+            {
+                predkosc.y = 0.0f;
+                // ZMIANA: Tu te¿ poprawka pozycji
+                pozycja.y = POZIOM_PODLOGI - lotka.getRadius();
+
+                //ZMIANA : puszka nie toczy siê w nieskoñczonoœæ
+                if (fabs(predkosc.x) > 0)
+                {
+                    if (predkosc.x > 0)
+                    {
+                        predkosc.x -= 0.3f; // tarcie w prawo
+                        if (predkosc.x <= 0) predkosc.x = 0.0f;
+                    }
+                    else
+                    {
+                        predkosc.x += 0.3f; // tarcie w lewo
+                        if (predkosc.x >= 0) predkosc.x = 0.0f;
+                    }
+                }
+                else
+                {
+                    Sleep(500);
+                    czyLeci = false;
+                }
+            }
+            lotka.setPosition(pozycja);
         }
-        lotka.setPosition(pozycja);
     }
-}
+    }

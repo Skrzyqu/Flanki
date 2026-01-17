@@ -3,7 +3,7 @@
 #include "przeszkoda.h"
 
 // --- KONFIGURACJA FIZYKI ---
-constexpr auto precyzja = 36.32f;     ///< Próg prêdkoœci, poni¿ej którego uznajemy, ¿e obiekt siê zatrzyma³ (sleep threshold).
+constexpr auto precyzja = 1.0f;     ///< Próg prêdkoœci, poni¿ej którego uznajemy, ¿e obiekt siê zatrzyma³ (sleep threshold).
 constexpr float MAX_NACIAG = 100.0f;  ///< Maksymalna d³ugoœæ wektora celowania (w pikselach).
 constexpr float POZIOM_PODLOGI = 1030.0f;
 

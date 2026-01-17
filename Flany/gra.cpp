@@ -43,6 +43,7 @@ Gra::Gra(bool trybBot) :
     }
     else
     {
+		puszka.czyPuszka = true; //Ustawienie ¿e trafienie puszki koñczy gre
         puszka.duszek.setTexture(puszka.tekstura, true);
         puszka.duszek.setScale({ 1.5f, 1.5f });
         sf::FloatRect bounds = puszka.duszek.getGlobalBounds();
@@ -511,9 +512,10 @@ void Gra::rysuj(sf::RenderWindow& okno)
     okno.draw(tlo);
     okno.draw(podloga.blok);
     okno.draw(puszka.duszek);
+    tutorialE3(okno);
     okno.draw(tloPaskaLewego); okno.draw(piwoLewe);
     okno.draw(tloPaskaPrawego); okno.draw(piwoPrawe);
-
+   
     skinLewy.rysuj(okno);
     skinPrawy.rysuj(okno);
 
@@ -534,6 +536,8 @@ void Gra::rysuj(sf::RenderWindow& okno)
 
     if (czyKoniecGry) okno.draw(napisWygranej);
     else okno.draw(napisTury);
+
+
 
     okno.display();
 }
