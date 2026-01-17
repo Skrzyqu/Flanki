@@ -161,12 +161,17 @@
     <ClCompile Include="menu.cpp" />
     <ClCompile Include="odbicie.cpp" />
     <ClCompile Include="pocisk.cpp" />
+<<<<<<< HEAD
     <ClCompile Include="przeszkoda.cpp" />
+=======
+    <ClCompile Include="poziomy.cpp" />
+>>>>>>> Odbicia-+-koncept-poziomu
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bohater.h" />
     <ClInclude Include="gra.h" />
     <ClInclude Include="menu.h" />
+    <ClInclude Include="odbicie.h" />
     <ClInclude Include="pocisk.h" />
     <ClInclude Include="przeszkoda.h" />
   </ItemGroup>

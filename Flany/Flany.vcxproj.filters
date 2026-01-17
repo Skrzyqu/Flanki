@@ -33,7 +33,11 @@
     <ClCompile Include="bohater.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+<<<<<<< HEAD
     <ClCompile Include="przeszkoda.cpp">
+=======
+    <ClCompile Include="poziomy.cpp">
+>>>>>>> Odbicia-+-koncept-poziomu
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -51,6 +55,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="bohater.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="odbicie.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

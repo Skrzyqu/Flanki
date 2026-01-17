@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 C:\Users\micha\source\repos\Flanki\Flany\bohater.cpp;C:\Users\micha\source\repos\Flanki\Flany\x64\Debug\bohater.obj
 C:\Users\micha\source\repos\Flanki\Flany\Flany.cpp;C:\Users\micha\source\repos\Flanki\Flany\x64\Debug\Flany.obj
 C:\Users\micha\source\repos\Flanki\Flany\gra.cpp;C:\Users\micha\source\repos\Flanki\Flany\x64\Debug\gra.obj
@@ -5,3 +6,12 @@ C:\Users\micha\source\repos\Flanki\Flany\menu.cpp;C:\Users\micha\source\repos\Fl
 C:\Users\micha\source\repos\Flanki\Flany\odbicie.cpp;C:\Users\micha\source\repos\Flanki\Flany\x64\Debug\odbicie.obj
 C:\Users\micha\source\repos\Flanki\Flany\pocisk.cpp;C:\Users\micha\source\repos\Flanki\Flany\x64\Debug\pocisk.obj
 C:\Users\micha\source\repos\Flanki\Flany\przeszkoda.cpp;C:\Users\micha\source\repos\Flanki\Flany\x64\Debug\przeszkoda.obj
+=======
+C:\Users\Filip\source\repos\Flankikom\Flany\bohater.cpp;C:\Users\Filip\source\repos\Flankikom\Flany\x64\Debug\bohater.obj
+C:\Users\Filip\source\repos\Flankikom\Flany\Flany.cpp;C:\Users\Filip\source\repos\Flankikom\Flany\x64\Debug\Flany.obj
+C:\Users\Filip\source\repos\Flankikom\Flany\gra.cpp;C:\Users\Filip\source\repos\Flankikom\Flany\x64\Debug\gra.obj
+C:\Users\Filip\source\repos\Flankikom\Flany\menu.cpp;C:\Users\Filip\source\repos\Flankikom\Flany\x64\Debug\menu.obj
+C:\Users\Filip\source\repos\Flankikom\Flany\odbicie.cpp;C:\Users\Filip\source\repos\Flankikom\Flany\x64\Debug\odbicie.obj
+C:\Users\Filip\source\repos\Flankikom\Flany\pocisk.cpp;C:\Users\Filip\source\repos\Flankikom\Flany\x64\Debug\pocisk.obj
+C:\Users\Filip\source\repos\Flankikom\Flany\poziomy.cpp;C:\Users\Filip\source\repos\Flankikom\Flany\x64\Debug\poziomy.obj
+>>>>>>> Odbicia-+-koncept-poziomu

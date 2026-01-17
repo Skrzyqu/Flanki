@@ -95,6 +95,9 @@ public:
      */
     void rysuj(sf::RenderWindow& okno);
 
+    //Poziomy do gry
+    void tutorialE2(sf::RenderWindow& okno);
+    void tutorialE3(sf::RenderWindow& okno);
 private:
     // --- METODY POMOCNICZE (INTERNAL LOGIC) ---
 
