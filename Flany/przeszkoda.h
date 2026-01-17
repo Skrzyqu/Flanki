@@ -11,5 +11,8 @@ public:
 	//bool sprezyste; na razie nieuzywane
 	//int hp;	na razie nieuzywane
 	//float massa; na razie nieuzywane
+	sf::Texture tekstura;
+	sf::Sprite duszek;
+	przeszkoda() : duszek(tekstura) {}
 };
 

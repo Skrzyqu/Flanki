@@ -36,6 +36,5 @@ int main()
         gra.aktualizuj(okno, gravity);
         gra.rysuj(okno);
     }
-
     return 0;
 }

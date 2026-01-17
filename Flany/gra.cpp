@@ -4,14 +4,34 @@
 
 Gra::Gra(bool trybBot) :
     // Lista inicjalizacyjna - szybsza ni¿ przypisywanie w ciele konstruktora
-    graczLewy(150.0f, 900.0f, sf::Color::Red),
-    graczPrawy(1770.0f, 900.0f, sf::Color::Blue),
+    tlo(teksturaTla),
+    graczLewy(118.0f, 970.0f, sf::Color::Red),
+    graczPrawy(1802.0f, 970.0f, sf::Color::Blue),
+    skinLewy(150.0f, POZIOM_PODLOGI),  // Musimy je zainicjowaæ!
+    skinPrawy(1770.0f, POZIOM_PODLOGI),
     turaLewego(true),
     strzalWTok(false),
     napisTury(czcionka),
 	napisWygranej(czcionka),
     graZBotem(trybBot)
 {
+    // --- £ADOWANIE T£A ---
+    if (!teksturaTla.loadFromFile("agh_bg2.png"))
+    {
+        std::cerr << "Blad ladowania tla!" << std::endl;
+    }
+    tlo.setTexture(teksturaTla, true);
+    sf::Vector2u wymiaryObrazka = teksturaTla.getSize();
+    float skalaX = 1920.0f / wymiaryObrazka.x;
+    float skalaY = 1080.0f / wymiaryObrazka.y;
+    tlo.setScale({ skalaX, skalaY });
+
+	// 1. KONFIGURACJA POD£OGI
+    podloga.rozmiar = { 1920.0f, 1080.0f - POZIOM_PODLOGI };
+    podloga.pozycja = { 0.0f, POZIOM_PODLOGI };
+    podloga.blok.setSize(podloga.rozmiar);
+    podloga.blok.setFillColor(sf::Color(34, 139, 34)); // Zielony
+    podloga.blok.setPosition(podloga.pozycja);
     /*
     // Konfiguracja przeszkody
     kamien.pozycja = sf::Vector2f{ 1200.0f, 800.0f };
@@ -20,14 +40,26 @@ Gra::Gra(bool trybBot) :
     kamien.blok.setPosition(kamien.pozycja);
     kamien.blok.setFillColor(sf::Color::Green);
     */
-
-    //konfiguracja puszki
-    puszka.rozmiar = sf::Vector2f{ 60.0f, 100.0f };
+	// 2. KONFIGURACJA PUSZKI
+    if (!puszka.tekstura.loadFromFile("beer.png"))
+    {
+        std::cerr << "Blad ladowania tekstury puszki!" << std::endl;
+    }
+    else
+    {
+        puszka.duszek.setTexture(puszka.tekstura, true);
+        puszka.duszek.setScale({ 1.5f, 1.5f });
+        sf::FloatRect bounds = puszka.duszek.getGlobalBounds();
+        puszka.rozmiar = bounds.size;
+    }
     puszka.blok.setSize(puszka.rozmiar);
-    puszka.pozycja = sf::Vector2f{ 960.0f, 1080.0f };
-    puszka.blok.setPosition(puszka.pozycja);
-    puszka.blok.setFillColor(sf::Color(192, 192, 192)); // Srebrny
     puszka.blok.setOrigin({ puszka.rozmiar.x / 2.0f, puszka.rozmiar.y });
+    sf::FloatRect localBounds = puszka.duszek.getLocalBounds();
+    puszka.duszek.setOrigin({ localBounds.size.x / 2.0f, localBounds.size.y });
+    puszka.pozycja = { 960.0f, POZIOM_PODLOGI };
+    puszka.blok.setPosition(puszka.pozycja);
+    puszka.duszek.setPosition(puszka.pozycja);
+
 
     // 2. KONFIGURACJA PASKÓW PIWA
     sf::Vector2f rozmiarPaska{ 50.0f, 400.0f }; // Szeroki na 50, wysoki na 400
@@ -38,6 +70,7 @@ Gra::Gra(bool trybBot) :
     piwoLewe.setSize(rozmiarPaska);
     piwoLewe.setFillColor(sf::Color(255, 200, 0)); // Z³oty (PIWO!)
     piwoLewe.setPosition({ 50.0f, 100.0f });
+    skinLewy.ustawZwrot(true);
 
     // -- PRAWY GRACZ (NIEBIESKI) --
     tloPaskaPrawego.setSize(rozmiarPaska);
@@ -46,6 +79,7 @@ Gra::Gra(bool trybBot) :
     piwoPrawe.setSize(rozmiarPaska);
     piwoPrawe.setFillColor(sf::Color(255, 200, 0));
     piwoPrawe.setPosition({ 1820.0f, 100.0f });
+    skinPrawy.ustawZwrot(false);
 
     // £adowanie zasobów
     (void)czcionka.openFromFile("arial.ttf");
@@ -61,6 +95,9 @@ Gra::Gra(bool trybBot) :
 
 	// Inicjalizacja napisu tury
     aktualizujNapis();
+    // Ustawiamy pocz¹tkowy stan: Lewy zaczyna, wiêc jest gotowy. Prawy czeka.
+    skinLewy.ustawGotowosc(true);
+    skinPrawy.ustawGotowosc(false);
 }
 
 void Gra::obsluzWejscie(sf::RenderWindow& okno)
@@ -154,11 +191,7 @@ void Gra::logikaBota(sf::RenderWindow& okno)
 
             sf::Vector2f start = graczPrawy.pozycja;
 
-            // Fizyka:
-            // X = X0 + Vx * t
-            // Y = Y0 + Vy * t + 0.5 * g * t^2
-
-            float g = 0.2f; // Grawitacja (taka sama jak w main.cpp!)
+            float g = 0.2f; // Grawitacja (taka sama jak w Flany.cpp!)
             float czasLotu = 95.0f; // Ile klatek ma lecieæ pi³ka (im wiêcej, tym wy¿szy ³uk)
 
             // Obliczamy idealn¹ prêdkoœæ, ¿eby trafiæ w punkt
@@ -167,7 +200,7 @@ void Gra::logikaBota(sf::RenderWindow& okno)
 
             // --- CZYNNIK LUDZKI (B£¥D) ---
             // Dodajemy losowoœæ, ¿eby bot nie by³ robotem idealnym
-            // B³¹d w przedziale -1.5 do 1.5
+            // B³¹d w przedziale -3 do 3
             float bladX = (rand() % 30 - 15) / 10.0f;
             float bladY = (rand() % 30 - 15) / 10.0f;
 
@@ -255,25 +288,26 @@ void Gra::obsluzBieganie()
     // Jeœli gra siê skoñczy³a w trakcie biegania, przerywamy
     if (czyKoniecGry) return;
 
-    pocisk* biegacz = turaLewego ? &graczPrawy : &graczLewy;
+    Bohater* biegacz = turaLewego ? &skinPrawy : &skinLewy;
     sf::Vector2f cel;
 
     if (biegWStronePuszki)
     {
         cel = puszka.pozycja;
-        cel.y -= 20.0f;
+        cel.y = POZIOM_PODLOGI;
     }
     else
     {
         cel = biegacz->pozycjaStartowa;
     }
 
-    sf::Vector2f kierunek = cel - biegacz->pozycja;
-    float dystans = std::sqrt(kierunek.x * kierunek.x + kierunek.y * kierunek.y);
+    sf::Vector2f roznica = cel - biegacz->duszek.getPosition();
+    float dystans = std::sqrt(roznica.x * roznica.x + roznica.y * roznica.y);
 
     if (dystans <= szybkoscBiegu)
     {
-        biegacz->pozycja = cel;
+        biegacz->duszek.setPosition(cel);
+        biegacz->zatrzymajSie();
 
         if (biegWStronePuszki)
         {
@@ -283,17 +317,13 @@ void Gra::obsluzBieganie()
         }
         else
         {
-            biegacz->lotka.setPosition(biegacz->pozycjaStartowa);
             zmienTure(*(sf::RenderWindow*)nullptr);
         }
     }
     else
     {
-        sf::Vector2f ruch = (kierunek / dystans) * szybkoscBiegu;
-        biegacz->pozycja += ruch;
+        biegacz->podejdzDo(cel, szybkoscBiegu);
     }
-
-    biegacz->lotka.setPosition(biegacz->pozycja);
 }
 
 void Gra::sprawdzWygrana()
@@ -343,6 +373,9 @@ void Gra::aktualizuj(sf::RenderWindow& okno, sf::Vector2f grawitacja)
 {
     if (czyKoniecGry) return;
 
+    skinLewy.aktualizujAnimacje();
+    skinPrawy.aktualizujAnimacje();
+
     // WYWO£ANIE AI BOTA
     logikaBota(okno);
 
@@ -369,6 +402,16 @@ void Gra::aktualizuj(sf::RenderWindow& okno, sf::Vector2f grawitacja)
 
     if (!fazaBiegania)
     {
+        if (turaLewego && graczLewy.czyLeci && !strzalWTok)
+        {
+            skinLewy.wykonajRzut();
+        }
+
+        if (!turaLewego && graczPrawy.czyLeci && !strzalWTok)
+        {
+            skinPrawy.wykonajRzut();
+        }
+
         if (turaLewego && graczLewy.czyLeci) strzalWTok = true;
         if (!turaLewego && graczPrawy.czyLeci) strzalWTok = true;
 
@@ -397,6 +440,11 @@ void Gra::zmienTure(sf::RenderWindow& okno)
 
     graczLewy.resetuj();
     graczPrawy.resetuj();
+
+    skinLewy.zresetujPozycje();
+    skinPrawy.zresetujPozycje();
+    skinLewy.ustawGotowosc(turaLewego);
+    skinPrawy.ustawGotowosc(!turaLewego);
 
     licznikBota = 0; // Resetujemy mózg bota
     aktualizujNapis();
@@ -459,11 +507,22 @@ void Gra::aktualizujNapis()
 
 void Gra::rysuj(sf::RenderWindow& okno)
 {
-    okno.clear(sf::Color::Black);
-    okno.draw(puszka.blok);
+    okno.clear(sf::Color::White);
+    okno.draw(tlo);
+    okno.draw(podloga.blok);
+    okno.draw(puszka.duszek);
     okno.draw(tloPaskaLewego); okno.draw(piwoLewe);
     okno.draw(tloPaskaPrawego); okno.draw(piwoPrawe);
-    okno.draw(graczLewy.lotka); okno.draw(graczPrawy.lotka);
+    skinLewy.rysuj(okno);
+    skinPrawy.rysuj(okno);
+    if (turaLewego)
+    {
+        okno.draw(graczLewy.lotka);
+    }
+    else
+    {
+        okno.draw(graczPrawy.lotka);
+    }
     if (!czyKoniecGry && !fazaBiegania) {
         if (turaLewego) graczLewy.rysujCelowanie(okno);
         else if (!graZBotem) graczPrawy.rysujCelowanie(okno); // Bot nie rysuje linii celowania

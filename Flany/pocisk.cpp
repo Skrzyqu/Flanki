@@ -49,14 +49,14 @@ void pocisk::obsluzWejscie(sf::Event event, const sf::RenderWindow& okno)
             {
                 czyCeluje = false;
                 czyLeci = true;
-                // Obliczanie wektora si³y na podstawie naci¹gu (Vector Subtraction)
-                // Kierunek strza³u jest odwrotny do naci¹gniêcia
+
                 sf::Vector2f naciag;
                 naciag.x = pozycjaStartowa.x - pozycja.x;
                 naciag.y = pozycjaStartowa.y - pozycja.y;
 
-                // Mno¿nik si³y - parametr balansuj¹cy si³ê wyrzutu
                 predkosc = naciag * 0.15f;
+                pozycja = pozycjaStartowa;
+                lotka.setPosition(pozycja);
             }
         }
     }
@@ -86,7 +86,6 @@ void pocisk::aktualizujPozycjeCelowania(const sf::RenderWindow& okno)
         // Aktualizacja wizualna pozycji "na gumce"
         pozycja.x = pozycjaStartowa.x + wektor.x;
         pozycja.y = pozycjaStartowa.y + wektor.y;
-        lotka.setPosition(pozycja);
     }
 }
 
@@ -135,8 +134,8 @@ void pocisk::rysujCelowanie(sf::RenderWindow& okno)
         sf::Vector2i mousePos = sf::Mouse::getPosition(okno);
         sf::Vertex line[] =
         {
-            sf::Vertex(sf::Vector2f((float)pozycjaStartowa.x, (float)pozycjaStartowa.y), sf::Color::White),
-            sf::Vertex(lotka.getPosition(), sf::Color::White)
+            sf::Vertex(pozycjaStartowa, sf::Color::White),
+            sf::Vertex(pozycja, sf::Color::Magenta) // Rysujemy do 'pozycja' (tam gdzie naci¹gnêliœmy myszk¹)
         };
         okno.draw(line, 2, sf::PrimitiveType::Lines);
     }
@@ -160,16 +159,18 @@ void pocisk::zmiana_pozycji()
 void pocisk::odbicie_podloze(sf::RenderWindow* okno)
 {
     // Sprawdzenie dolnej krawêdzi ekranu
-    if (pozycja.y + lotka.getRadius() >= okno->getSize().y)
+    if (pozycja.y + lotka.getRadius() >= POZIOM_PODLOGI)
     {
-        predkosc.y = predkosc.y * -0.7f; // Tracimy energiê przy odbiciu
-        pozycja.y = okno->getSize().y - lotka.getRadius() * 2;
+        predkosc.y = predkosc.y * -0.7f;
 
-		// Zerowanie prêdkoœci, jeœli jest bardzo ma³a
+        // ZMIANA: Ustawiamy pi³kê na powierzchni naszej nowej pod³ogi
+        pozycja.y = POZIOM_PODLOGI - lotka.getRadius();
+
         if ((fabs(predkosc.y) < precyzja))
         {
             predkosc.y = 0.0f;
-            pozycja.y = okno->getSize().y - lotka.getRadius() * 2;
+            // ZMIANA: Tu te¿ poprawka pozycji
+            pozycja.y = POZIOM_PODLOGI - lotka.getRadius();
         }
         lotka.setPosition(pozycja);
     }

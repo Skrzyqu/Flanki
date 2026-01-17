@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include "pocisk.h"
 #include "przeszkoda.h"
+#include "bohater.h"
 
 // Klasa zarz¹dzaj¹ca logik¹ gry
 class Gra
@@ -9,8 +10,13 @@ class Gra
 public:
 	// --- Obiekty gry ---
     pocisk graczLewy;
+    Bohater skinLewy;
+
     pocisk graczPrawy;
+    Bohater skinPrawy; 
+
     przeszkoda puszka;
+    przeszkoda podloga;
 
     // --- PASKI PIWA ---
     // T³o (pusta szklanka) i Wype³nienie (z³ocisty trunek)
@@ -19,20 +25,22 @@ public:
     // Poziom piwa (0 - 100)
     float poziomLewego = 100.0f;
     float poziomPrawego = 100.0f;
-    const float LYK_PIWA = 5.0f; // Ile piwa znika po jednym klikniêciu Entera
+    const float LYK_PIWA = 1.0f; // Ile piwa znika po jednym klikniêciu Entera
 
 	// --- UI / HUD ---
     sf::Font czcionka;
     sf::Text napisTury;
     bool czyKoniecGry = false;
     sf::Text napisWygranej;
+    sf::Texture teksturaTla;
+    sf::Sprite tlo;
 
 	// --- Stany gry ---
     bool turaLewego;
     bool strzalWTok;
     bool fazaBiegania = false;
     bool biegWStronePuszki = true;
-	float szybkoscBiegu = 40.0f;
+	float szybkoscBiegu = 50.0f;
 
     // --- NOWE ZMIENNE DLA BOTA ---
     bool graZBotem = false; // Czy gramy z komputerem?

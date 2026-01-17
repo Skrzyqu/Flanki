@@ -4,6 +4,7 @@
 
 constexpr auto precyzja = 36.32f; //wartosc przy której pocisk nie odbija sie juz od podloza
 constexpr float MAX_NACIAG = 100.0f; //maksymalny naciag luku
+constexpr float POZIOM_PODLOGI = 1030.0f; //poziom podlogi w oknie gry
 
 //klasa zarzadzajaca pociskiem
 class pocisk
