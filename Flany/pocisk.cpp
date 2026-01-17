@@ -1,9 +1,5 @@
 #include "pocisk.h"
-// FIXME: Include pliku .cpp jest b³êdem architektonicznym (narusza ODR). 
-// Kod z odbicie.cpp powinien byæ w odbicie.h lub skompilowany osobno.
-// Zostawiam bez zmian ze wzglêdu na wymogi zadania.
-#include "odbicie.cpp" 
-
+#include "odbicie.h" // U¿ywamy nag³ówka!
 #include <cmath>
 #include <iostream>
 
@@ -13,61 +9,38 @@ pocisk::pocisk(float x, float y, sf::Color kolor)
     pozycjaStartowa = pozycja;
     predkosc = { 0.0f, 0.0f };
     lotka.setFillColor(kolor);
-    // Ustawienie origin na œrodek ko³a u³atwia kolizje i obroty
     lotka.setOrigin(sf::Vector2f(lotka.getRadius(), lotka.getRadius()));
     lotka.setPosition(pozycja);
 }
 
 void pocisk::obsluzWejscie(sf::Event event, const sf::RenderWindow& okno)
 {
-    // --- INPUT: ROZPOCZÊCIE CELOWANIA ---
     if (event.is<sf::Event::MouseButtonPressed>())
     {
         const auto& mouseEvent = event.getIf<sf::Event::MouseButtonPressed>();
-        if (mouseEvent->button == sf::Mouse::Button::Left)
+        if (mouseEvent->button == sf::Mouse::Button::Left && !czyLeci)
         {
-            if (!czyLeci)
+            sf::Vector2f mysz = okno.mapPixelToCoords(sf::Mouse::getPosition(okno));
+            float dx = mysz.x - pozycja.x;
+            float dy = mysz.y - pozycja.y;
+            if ((dx * dx + dy * dy) <= (lotka.getRadius() * lotka.getRadius()))
             {
-                sf::Vector2f mysz = okno.mapPixelToCoords(sf::Mouse::getPosition(okno));
-
-                // Detekcja klikniêcia w okr¹g (Point-Circle Collision)
-                float dx = mysz.x - pozycja.x;
-                float dy = mysz.y - pozycja.y;
-                float dystansKwadrat = dx * dx + dy * dy;
-                float promien = lotka.getRadius();
-
-                // Porównujemy kwadraty odleg³oœci, aby unikn¹æ kosztownego pierwiastkowania (sqrt).
-                if (dystansKwadrat <= promien * promien)
-                {
-                    czyCeluje = true;
-                }
+                czyCeluje = true;
             }
         }
     }
 
-    // --- INPUT: WYSTRZELENIE ---
     if (event.is<sf::Event::MouseButtonReleased>())
     {
         const auto& mouseEvent = event.getIf<sf::Event::MouseButtonReleased>();
-        if (mouseEvent->button == sf::Mouse::Button::Left)
+        if (mouseEvent->button == sf::Mouse::Button::Left && czyCeluje)
         {
-            if (czyCeluje)
-            {
-                czyCeluje = false;
-                czyLeci = true;
-
-                // Obliczanie wektora si³y odwrotnego do naci¹gu
-                sf::Vector2f naciag;
-                naciag.x = pozycjaStartowa.x - pozycja.x;
-                naciag.y = pozycjaStartowa.y - pozycja.y;
-
-                // Skalowanie si³y (Mno¿nik mocy rzutu)
-                predkosc = naciag * 0.15f;
-
-                // Reset wizualny na start, fizyka przejmuje kontrolê
-                pozycja = pozycjaStartowa;
-                lotka.setPosition(pozycja);
-            }
+            czyCeluje = false;
+            czyLeci = true;
+            sf::Vector2f naciag = pozycjaStartowa - pozycja;
+            predkosc = naciag * 0.15f;
+            pozycja = pozycjaStartowa;
+            lotka.setPosition(pozycja);
         }
     }
 }
@@ -77,52 +50,33 @@ void pocisk::aktualizujPozycjeCelowania(const sf::RenderWindow& okno)
     if (czyCeluje)
     {
         sf::Vector2f mysz = okno.mapPixelToCoords(sf::Mouse::getPosition(okno));
-
-        // Wektor kierunkowy
-        sf::Vector2f wektor;
-        wektor.x = mysz.x - pozycjaStartowa.x;
-        wektor.y = mysz.y - pozycjaStartowa.y;
-
+        sf::Vector2f wektor = mysz - pozycjaStartowa;
         float dlugosc = std::sqrt(wektor.x * wektor.x + wektor.y * wektor.y);
 
-        // CLAMP: Ograniczenie maksymalnego naci¹gu procy
         if (dlugosc > MAX_NACIAG)
         {
             float skala = MAX_NACIAG / dlugosc;
-            wektor.x *= skala;
-            wektor.y *= skala;
+            wektor *= skala;
         }
-
-        // Aktualizacja wizualna "naci¹gniêtej" lotki
-        pozycja.x = pozycjaStartowa.x + wektor.x;
-        pozycja.y = pozycjaStartowa.y + wektor.y;
+        pozycja = pozycjaStartowa + wektor;
     }
 }
 
 void pocisk::aktualizujFizyke(sf::RenderWindow& okno, przeszkoda& cel, sf::Vector2f grawitacja)
 {
-    if (czyCeluje)
-    {
-        aktualizujPozycjeCelowania(okno);
-    }
+    if (czyCeluje) aktualizujPozycjeCelowania(okno);
 
     if (czyLeci)
     {
-        // 1. Sprawdzenie kolizji (zanim przesuniemy)
+        // Wywo³ujemy funkcjê z odbicie.cpp
         odbicie_przeszkoda(this, cel);
 
-        // 2. Integracja Eulera (Krok symulacji)
         zmiana_pozycji();
         zmiana_predkosci(grawitacja);
-
-        // 3. Ograniczenia œwiata (World Bounds)
         odbicie_podloze(&okno);
 
-        // Kill plane - jeœli wyleci za daleko, resetujemy
-        if (pozycja.x > 3000 || pozycja.x < -500)
-        {
-            resetuj();
-        }
+        // Kill plane
+        if (pozycja.x > 3000 || pozycja.x < -500) resetuj();
     }
 }
 
@@ -138,9 +92,7 @@ void pocisk::rysujCelowanie(sf::RenderWindow& okno)
 {
     if (czyCeluje)
     {
-        // Debug Line / Wizualizacja naci¹gu
-        sf::Vertex line[] =
-        {
+        sf::Vertex line[] = {
             sf::Vertex(pozycjaStartowa, sf::Color::White),
             sf::Vertex(pozycja, sf::Color::Magenta)
         };
@@ -148,40 +100,52 @@ void pocisk::rysujCelowanie(sf::RenderWindow& okno)
     }
 }
 
-// --- PRIVATE HELPERS ---
-
 void pocisk::zmiana_predkosci(sf::Vector2f grawitacja)
 {
-    // v = v0 + a*dt (przyjmujemy dt = 1 klatka)
-    predkosc.x += grawitacja.x;
-    predkosc.y += grawitacja.y;
+    predkosc += grawitacja;
 }
 
 void pocisk::zmiana_pozycji()
 {
-    // x = x0 + v*dt
-    pozycja.x += predkosc.x;
-    pozycja.y += predkosc.y;
+    pozycja += predkosc;
     lotka.setPosition(pozycja);
 }
 
 void pocisk::odbicie_podloze(sf::RenderWindow* okno)
 {
-    // Kolizja z pod³og¹
+    // --- LOGIKA FIZYCZNA KOLEGI (Tarcie i toczenie) ---
     if (pozycja.y + lotka.getRadius() >= POZIOM_PODLOGI)
     {
-        // Odbicie z utrat¹ energii (Coefficient of Restitution = 0.7)
-        predkosc.y = predkosc.y * -0.7f;
-
-        // Korekcja penetracji (teleportacja na powierzchniê)
+        // Odbicie z t³umieniem
+        predkosc.y = predkosc.y * -0.3f;
         pozycja.y = POZIOM_PODLOGI - lotka.getRadius();
 
-        // Próg uœpienia (Sleep Threshold) - zapobieganie drganiom przy ma³ych prêdkoœciach
-        if ((fabs(predkosc.y) < precyzja))
+        // Jeœli prêdkoœæ pionowa jest bardzo ma³a -> toczenie
+        if (std::abs(predkosc.y) < precyzja)
         {
             predkosc.y = 0.0f;
             pozycja.y = POZIOM_PODLOGI - lotka.getRadius();
+
+            // TARCIE (Zwalnianie w poziomie)
+            if (std::abs(predkosc.x) > 0.0f)
+            {
+                if (predkosc.x > 0)
+                {
+                    predkosc.x -= 0.3f;
+                    if (predkosc.x <= 0) predkosc.x = 0.0f;
+                }
+                else
+                {
+                    predkosc.x += 0.3f;
+                    if (predkosc.x >= 0) predkosc.x = 0.0f;
+                }
+            }
+            else
+            {
+                // ZATRZYMANIE (Zamiast Sleep() po prostu wy³¹czamy fizykê)
+                czyLeci = false;
+            }
         }
         lotka.setPosition(pozycja);
     }
-}  
+}

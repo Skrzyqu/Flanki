@@ -1,75 +1,77 @@
-#include "przeszkoda.h"
-#include "pocisk.h"
-#include <SFML/Graphics.hpp>
+#include "odbicie.h"
+#include "pocisk.h"     
+#include "przeszkoda.h" 
 #include <iostream>
 #include <cmath>
-#include <cstdlib> 
 
-static void odbicie_przeszkoda(pocisk* lotka, przeszkoda& puszka)
+bool CzyBok(pocisk* lotka, przeszkoda& puszka)
+{
+    float promienLotki = lotka->lotka.getRadius();
+    float srodeklotkiX = lotka->pozycja.x;
+    float srodekblokuX = puszka.pozycja.x;
+    float polowkaSzerokosciBloku = puszka.rozmiar.x / 2.0f;
+
+    // Margines b³êdu dla detekcji boków
+    bool lewaObicie = (srodeklotkiX + promienLotki >= srodekblokuX - polowkaSzerokosciBloku);
+    bool prawaObicie = (srodeklotkiX - promienLotki <= srodekblokuX + polowkaSzerokosciBloku);
+
+    return lewaObicie || prawaObicie;
+}
+
+bool CzyGoraDol(pocisk* lotka, przeszkoda& puszka)
+{
+    float promienLotki = lotka->lotka.getRadius();
+    float srodeklotkiY = lotka->pozycja.y;
+    float srodekblokuY = puszka.pozycja.y;
+    float polowkaWysokosciBloku = puszka.rozmiar.y / 2.0f;
+
+    bool gornaKolizja = (srodeklotkiY + promienLotki >= srodekblokuY - polowkaWysokosciBloku);
+    bool dolnaKolizja = (srodeklotkiY - promienLotki <= srodekblokuY + polowkaWysokosciBloku);
+
+    return gornaKolizja || dolnaKolizja;
+}
+
+void odbicie_przeszkoda(pocisk* lotka, przeszkoda& puszka)
 {
     sf::FloatRect granicePuszki = puszka.blok.getGlobalBounds();
     sf::FloatRect graniceLotki = lotka->lotka.getGlobalBounds();
 
-    // Pobieramy informacje o obszarze przeciêcia (overlap)
-    auto intersection = granicePuszki.findIntersection(graniceLotki);
+    auto czyNachodza = granicePuszki.findIntersection(graniceLotki);
 
-    if (intersection && !puszka.czyTrafiona)
+    if (czyNachodza)
     {
-        puszka.czyTrafiona = true;
-        puszka.przewroc(lotka->predkosc.x); // <--- TO WYSTARTUJE ANIMACJÊ
+        // --- NAPRAWA: ZAPISUJEMY SI£Ê PRZED ODBICIEM ---
+        // Musimy wiedzieæ jak mocno i w któr¹ stronê lecia³a lotka W MOMENCIE uderzenia,
+        // zanim fizyka zmieni ten wektor na przeciwny.
+        float silaUderzeniaX = lotka->predkosc.x;
 
-        float vX = lotka->predkosc.x;
-        float vY = lotka->predkosc.y;
-        float silaUderzenia = std::abs(vX);
-        float chaos = 0.9f + static_cast<float>(rand() % 20) / 100.0f;
-
-        // --- DETEKCJA STRONY KOLIZJI ---
-        // Jeœli obszar przeciêcia jest szerszy ni¿ wy¿szy -> uderzenie z góry (lub do³u)
-        // Jeœli jest wy¿szy ni¿ szerszy -> uderzenie z boku
-        bool uderzenieZGory = intersection->size.x > intersection->size.y;
-
-        if (uderzenieZGory)
+        // --- FIZYKA ODBICIA (KOLEGA) ---
+        // Tutaj zmieniamy prêdkoœæ lotki (odbicie)
+        if (CzyBok(lotka, puszka))
         {
-            // --- UDERZENIE W WIECZKO / GÓRÊ PUSZKI ---
-            std::cout << "TRAFIENIE W WIECZKO" << std::endl;
-
-            // Odbicie w pionie (jak pi³ka od pod³ogi)
-            // Odwracamy Y i trochê t³umimy
-            lotka->predkosc.y = -vY * 0.5f * chaos;
-
-            // W poziomie: NIE ODWRACAMY! Lotka zeœlizguje siê i leci dalej w t¹ sam¹ stronê.
-            // Jedynie lekkie tarcie (zostaje 90% prêdkoœci).
-            lotka->predkosc.x = vX * 0.9f;
-
-            // Korekta pozycji: wyci¹gamy lotkê NAD puszkê
-            lotka->pozycja.y = granicePuszki.position.y - graniceLotki.size.y - 2.0f;
+            lotka->predkosc.x = -lotka->predkosc.x * 0.5f * puszka.sprezystosc;
+        }
+        else if (CzyGoraDol(lotka, puszka))
+        {
+            lotka->predkosc.y = -lotka->predkosc.y * 0.5f * puszka.sprezystosc;
         }
         else
         {
-            // --- UDERZENIE W BOK (STARA LOGIKA) ---
-            const float PROG_PRZEBICIA = 13.5f;
+            // Odbicie od rogu
+            lotka->predkosc.x = -lotka->predkosc.x * 0.5f * puszka.sprezystosc;
+            lotka->predkosc.y = -lotka->predkosc.y * 0.5f * puszka.sprezystosc;
+        }
 
-            if (silaUderzenia > PROG_PRZEBICIA)
-            {
-                // MOCNY RZUT (PRZEBICIE)
-                lotka->predkosc.x = vX * 0.3f * chaos;
-                lotka->predkosc.y = vY * 0.5f;
+        // --- LOGIKA TRAFIENIA I ANIMACJI (TY) ---
+        // Reagujemy tylko jeœli to jest cel gry (puszka), a nie œciana
+        if (puszka.czyPuszka && !puszka.czyTrafiona)
+        {
+            std::cout << "TRAFIENIE! Przewracam puszke." << std::endl;
+            puszka.czyTrafiona = true;
 
-                // Przy przebiciu NIE cofamy lotki przed puszkê. 
-                // Pozwalamy jej "przejœæ" przez obiekt w tej klatce.
-            }
-            else
-            {
-                // S£ABY RZUT (ODBICIE)
-                lotka->predkosc.x = -vX * 0.4f * chaos; // Tu odwracamy (odbicie w ty³)
-                lotka->predkosc.y = -2.0f * chaos;
-
-                // Korekta pozycji: cofamy lotkê PRZED puszkê (tylko przy odbiciu)
-                if (vX > 0)
-                    lotka->pozycja.x = granicePuszki.position.x - graniceLotki.size.x - 2.0f;
-                else
-                    lotka->pozycja.x = granicePuszki.position.x + granicePuszki.size.x + 2.0f;
-            }
+            // --- NAPRAWA: PRZEKAZUJEMY ORYGINALN¥ PRÊDKOŒÆ ---
+            // U¿ywamy zmiennej silaUderzeniaX, a nie lotka->predkosc.x (która jest ju¿ odwrócona przez kod wy¿ej)
+            puszka.przewroc(silaUderzeniaX);
         }
     }
 }
