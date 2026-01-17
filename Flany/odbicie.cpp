@@ -1,32 +1,33 @@
 #include "przeszkoda.h"
 #include "pocisk.h"
 #include <SFML/Graphics.hpp>
+#include <iostream>
 
-//funkcja odbicia pocisku od przeszkody
-
-static bool czyOdbicie(przeszkoda blok, pocisk lotka)
+/**
+ * @brief Obs³uguje logikê kolizji miêdzy lotk¹ (Okr¹g) a przeszkod¹ (AABB).
+ * @param lotka WskaŸnik na obiekt dynamiczny.
+ * @param puszka Referencja na obiekt statyczny.
+ */
+static void odbicie_przeszkoda(pocisk* lotka, przeszkoda& puszka)
 {
-	if (lotka.pozycja.x + lotka.lotka.getRadius() *2 >= blok.pozycja.x && //sprawdzenie czy pocisk dotknal lewej krawedzi przeszkody
-		lotka.pozycja.x <= blok.pozycja.x + blok.rozmiar.x && //sprawdzenie czy pocisk dotknal prawej krawedzi przeszkody
-		lotka.pozycja.y + lotka.lotka.getRadius() *2 >= blok.pozycja.y && //sprawdzenie czy pocisk dotknal górnej krawedzi przeszkody
-		lotka.pozycja.y <= blok.pozycja.y + blok.rozmiar.y) //sprawdzenie czy pocisk dotknal dolnej krawedzi przeszkody
-	{
-		
-		printf("kolizja %f \t %f\n", lotka.pozycja.x, lotka.pozycja.y);
-		return true; //doszlo do odbicia
-	}
-	else
-	{
-		return false; //nie doszlo do odbicia
-	}
-}
+	// Pobieramy granice (Bounding Boxes)
+	sf::FloatRect granicePuszki = puszka.blok.getGlobalBounds();
+	sf::FloatRect graniceLotki = lotka->lotka.getGlobalBounds();
 
-//funkcja odbicia pocisku od przeszkody
-static void odbicie_przeszkoda(pocisk* lotka, przeszkoda blok)
-{
-	if (czyOdbicie(blok, *lotka))
+	// [COLLISION] U¿ywamy prostego testu AABB (Axis-Aligned Bounding Box).
+	// Dla wiêkszej precyzji nale¿a³oby u¿yæ testu Circle-Box, 
+	// ale AABB jest wystarczaj¹co szybkie i dobre dla tej gry.
+	auto czyNachodza = granicePuszki.findIntersection(graniceLotki);
+
+	if (czyNachodza)
 	{
-		lotka->predkosc.x = lotka->predkosc.x * -0.85f;
-		lotka->predkosc.y = lotka->predkosc.y * -0.85f;
+		// Logowanie zdarzenia (Debug)
+		std::cout << "TRAFIENIE! Resetuje lotke." << std::endl;
+
+		// Zmiana stanu gry (Game Logic wewn¹trz systemu fizyki - trochê brudne, ale dzia³a)
+		puszka.czyTrafiona = true;
+
+		// Opcjonalnie: Tutaj mo¿na dodaæ logikê fizycznego odbicia (zmiana wektora prêdkoœci),
+		// ale w tej implementacji tylko zaliczamy trafienie.
 	}
 }

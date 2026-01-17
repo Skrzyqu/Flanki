@@ -21,12 +21,33 @@
     <ClCompile Include="odbicie.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="pocisk.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gra.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="menu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bohater.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="przeszkoda.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="pocisk.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gra.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="menu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bohater.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
