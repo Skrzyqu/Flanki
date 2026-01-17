@@ -16,6 +16,7 @@ static void odbicie_przeszkoda(pocisk* lotka, przeszkoda& puszka)
     if (intersection && !puszka.czyTrafiona)
     {
         puszka.czyTrafiona = true;
+        puszka.przewroc(lotka->predkosc.x); // <--- TO WYSTARTUJE ANIMACJÊ
 
         float vX = lotka->predkosc.x;
         float vY = lotka->predkosc.y;

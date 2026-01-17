@@ -284,7 +284,7 @@ void Gra::obsluzBieganie()
 {
     if (czyKoniecGry) return;
 
-    // Ustalenie, kto jest "biegaczem" w tej turze (zawsze ten, kto NIE rzuca³).
+    // Ustalenie, kto jest "biegaczem" (ten, kto NIE rzuca³/zosta³ trafiony)
     Bohater* biegacz = turaLewego ? &skinPrawy : &skinLewy;
     sf::Vector2f cel;
 
@@ -299,32 +299,38 @@ void Gra::obsluzBieganie()
         cel = biegacz->pozycjaStartowa;
     }
 
-    // Sprawdzenie dystansu (Circle check / Point distance)
+    // Sprawdzenie dystansu
     sf::Vector2f roznica = cel - biegacz->duszek.getPosition();
     float dystans = std::sqrt(roznica.x * roznica.x + roznica.y * roznica.y);
 
-    // Jeœli dotarliœmy do celu (z marginesem b³êdu równym prêdkoœci)
+    // Jeœli dotarliœmy do celu (z marginesem równym prêdkoœci, ¿eby nie przeskoczyæ)
     if (dystans <= szybkoscBiegu)
     {
-        biegacz->duszek.setPosition(cel); // Snap to grid
+        biegacz->duszek.setPosition(cel); // Idealne doci¹gniêcie do punktu
         biegacz->zatrzymajSie();
 
         if (biegWStronePuszki)
         {
-            // Etap 1 zakoñczony: Dotar³ do puszki. Teraz wracaj.
+            // --- ETAP 1 ZAKOÑCZONY: DOTAR£ DO PUSZKI ---
+
+            // NOWOŒÆ: Skoro dobieg³, to stawia puszkê!
+            puszka.postaw();
+
+            // Teraz zmienia cel na powrót
             biegWStronePuszki = false;
             napisTury.setString("WRACAJ!");
             napisTury.setFillColor(sf::Color::Yellow);
         }
         else
         {
-            // Etap 2 zakoñczony: Wróci³ na start. Koniec kary.
+            // --- ETAP 2 ZAKOÑCZONY: WRÓCI£ NA START ---
+            // Koniec kary, zmiana tury
             zmienTure(*(sf::RenderWindow*)nullptr);
         }
     }
     else
     {
-        // Ruch w stronê celu
+        // Jeœli jeszcze nie dotar³, idzie w stronê celu
         biegacz->podejdzDo(cel, szybkoscBiegu);
     }
 }
@@ -368,6 +374,7 @@ void Gra::aktualizuj(sf::RenderWindow& okno, sf::Vector2f grawitacja)
     // [VISUAL] Animacje
     skinLewy.aktualizujAnimacje();
     skinPrawy.aktualizujAnimacje();
+    puszka.aktualizuj();
 
     // [AI]
     logikaBota(okno);
@@ -444,6 +451,7 @@ void Gra::zmienTure(sf::RenderWindow& okno)
     // Reset obiektów fizycznych
     graczLewy.resetuj();
     graczPrawy.resetuj();
+    puszka.postaw();
 
     // Reset obiektów wizualnych (powrót na pozycje startowe)
     skinLewy.zresetujPozycje();

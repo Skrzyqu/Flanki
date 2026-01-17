@@ -33,6 +33,9 @@
     <ClCompile Include="bohater.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="przeszkoda.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="przeszkoda.h">

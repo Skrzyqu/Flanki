@@ -161,6 +161,7 @@
     <ClCompile Include="menu.cpp" />
     <ClCompile Include="odbicie.cpp" />
     <ClCompile Include="pocisk.cpp" />
+    <ClCompile Include="przeszkoda.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bohater.h" />
