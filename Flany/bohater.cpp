@@ -4,17 +4,18 @@
 
 Bohater::Bohater(float x, float y) : duszek(tekstura) {
 
+    // [IO/BLOCKING] Synchroniczne ³adowanie wielu plików. Mo¿e powodowaæ "czkawkê" przy starcie.
     // --- 1. £ADUJEMY KLATKI RZUTU ---
     std::vector<std::string> pliki = {
-        "AGH_skin-1.png",
+        "AGH_skin-1.png", // Start rzutu
         "AGH_skin-2.png",
         "AGH_skin-3.png",
-        "AGH_skin-4.png"
+        "AGH_skin-4.png"  // Koniec rzutu / Idle
     };
     klatkiAnimacji.resize(4);
     for (int i = 0; i < 4; i++) {
         if (!klatkiAnimacji[i].loadFromFile(pliki[i])) {
-            std::cerr << "Blad ladowania klatki: " << pliki[i] << std::endl;
+            std::cerr << "[ERROR] Blad ladowania klatki animacji: " << pliki[i] << std::endl;
         }
     }
 
@@ -28,11 +29,11 @@ Bohater::Bohater(float x, float y) : duszek(tekstura) {
     klatkiBiegania.resize(4);
     for (int i = 0; i < 4; i++) {
         if (!klatkiBiegania[i].loadFromFile(plikiBieg[i])) {
-            std::cerr << "Blad ladowania biegu: " << plikiBieg[i] << std::endl;
+            std::cerr << "[ERROR] Blad ladowania klatki biegu: " << plikiBieg[i] << std::endl;
         }
     }
 
-    // Ustawienia pocz¹tkowe
+    // Ustawienia pocz¹tkowe (Idle)
     duszek.setTexture(klatkiAnimacji[3], true);
 
     pozycjaStartowa = { x, y };
@@ -45,14 +46,14 @@ Bohater::Bohater(float x, float y) : duszek(tekstura) {
     czyBiegnie = false;
     obecnaKlatka = 3;
 
-    // Origin i Skala
+    // Ustawienie Originu na œrodek podstawy (u³atwia pozycjonowanie na ziemi)
     sf::FloatRect bounds = duszek.getLocalBounds();
     duszek.setOrigin({ bounds.size.x / 2.0f, bounds.size.y });
     duszek.setScale({ 4.0f, 4.0f });
 }
 
 void Bohater::ustawGotowosc(bool gotowy) {
-    if (czyBiegnie) return;
+    if (czyBiegnie) return; // Bieg ma priorytet nad gotowoœci¹
 
     czyJestGotowy = gotowy;
 
@@ -83,6 +84,11 @@ void Bohater::zatrzymajSie() {
 }
 
 void Bohater::aktualizujAnimacje() {
+    // Maszyna stanów animacji z priorytetami:
+    // 1. RZUT (One-shot, musi siê skoñczyæ)
+    // 2. BIEG (Loop)
+    // 3. STANIE (Static)
+
     // --- 1. PRIORYTET: RZUT ---
     if (czyAnimujeRzut) {
         if (zegarAnimacji.getElapsedTime().asSeconds() > czasMiedzyKlatkami) {
@@ -94,30 +100,29 @@ void Bohater::aktualizujAnimacje() {
                 obecnaKlatka = 3; // Po rzucie wracamy do stania
             }
 
-            // Zabezpieczenie przed wyjœciem poza tablicê
             if (obecnaKlatka < klatkiAnimacji.size()) {
                 duszek.setTexture(klatkiAnimacji[obecnaKlatka], true);
             }
         }
     }
-    // --- 2. PRIORYTET: BIEGANIE (TEGO BRAKOWA£O) ---
+    // --- 2. PRIORYTET: BIEGANIE ---
     else if (czyBiegnie) {
         if (zegarAnimacji.getElapsedTime().asSeconds() > czasMiedzyKlatkami) {
             obecnaKlatka++;
             zegarAnimacji.restart();
 
-            // Pêtla biegania (jak dojdzie do koñca, wraca na 0)
+            // Zapêtlenie animacji (Loop)
             if (obecnaKlatka >= klatkiBiegania.size()) {
                 obecnaKlatka = 0;
             }
 
-            // Bierzemy teksturê z wektora BIEGANIA
             duszek.setTexture(klatkiBiegania[obecnaKlatka], true);
         }
     }
     // --- 3. PRIORYTET: STANIE (GOTOWOŒÆ / LUZ) ---
     else {
         int docelowaKlatka = czyJestGotowy ? 0 : 3;
+        // Zmieniamy teksturê tylko jeœli stan faktycznie siê zmieni³ (optymalizacja)
         if (obecnaKlatka != docelowaKlatka) {
             obecnaKlatka = docelowaKlatka;
             duszek.setTexture(klatkiAnimacji[obecnaKlatka], true);
@@ -134,6 +139,7 @@ void Bohater::zresetujPozycje() {
     czyBiegnie = false;
     czyAnimujeRzut = false;
 
+    // Reset kierunku patrzenia w zale¿noœci od strony boiska
     if (pozycjaStartowa.x < 960.0f) ustawZwrot(true);
     else ustawZwrot(false);
 }
@@ -142,6 +148,7 @@ void Bohater::ustawZwrot(bool wPrawo) {
     float skalaX = std::abs(duszek.getScale().x);
     float skalaY = duszek.getScale().y;
 
+    // U¿ywamy ujemnej skali X do odwrócenia sprite'a (standardowy trik w 2D)
     if (wPrawo) {
         duszek.setScale({ -skalaX, skalaY });
     }
@@ -153,7 +160,7 @@ void Bohater::ustawZwrot(bool wPrawo) {
 
 void Bohater::podejdzDo(sf::Vector2f cel, float szybkosc) {
 
-    // --- W£¥CZANIE ANIMACJI BIEGU ---
+    // Auto-start animacji
     if (!czyBiegnie) {
         czyBiegnie = true;
         obecnaKlatka = 0;
@@ -162,16 +169,22 @@ void Bohater::podejdzDo(sf::Vector2f cel, float szybkosc) {
 
     sf::Vector2f obecnaPozycja = duszek.getPosition();
     sf::Vector2f kierunek = cel - obecnaPozycja;
+
+    // Obliczamy d³ugoœæ wektora (twierdzenie Pitagorasa)
     float dystans = std::sqrt(kierunek.x * kierunek.x + kierunek.y * kierunek.y);
 
+    // Auto-zwrot w stronê ruchu
     if (kierunek.x > 0) ustawZwrot(true);
     else if (kierunek.x < 0) ustawZwrot(false);
 
     if (dystans > szybkosc) {
+        // Normalizacja wektora: (kierunek / dystans) daje wektor o d³ugoœci 1.
+        // Mno¿ymy przez `szybkosc`, aby uzyskaæ przesuniêcie w tej klatce.
         sf::Vector2f ruch = (kierunek / dystans) * szybkosc;
         duszek.move(ruch);
     }
     else {
+        // Snap to target, aby unikn¹æ drgañ przy bardzo ma³ych dystansach
         duszek.setPosition(cel);
     }
 }

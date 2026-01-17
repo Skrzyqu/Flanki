@@ -1,23 +1,26 @@
 #include "pocisk.h"
-#include "odbicie.cpp"
+// FIXME: Include pliku .cpp jest b³êdem architektonicznym (narusza ODR). 
+// Kod z odbicie.cpp powinien byæ w odbicie.h lub skompilowany osobno.
+// Zostawiam bez zmian ze wzglêdu na wymogi zadania.
+#include "odbicie.cpp" 
+
 #include <cmath>
 #include <iostream>
 
-// Konstruktor - ustawia wartoœci startowe
 pocisk::pocisk(float x, float y, sf::Color kolor)
 {
     pozycja = { x, y };
     pozycjaStartowa = pozycja;
     predkosc = { 0.0f, 0.0f };
     lotka.setFillColor(kolor);
-	lotka.setOrigin(sf::Vector2f(lotka.getRadius(), lotka.getRadius())); // Ustawienie œrodka jako  punktu odniesienia
+    // Ustawienie origin na œrodek ko³a u³atwia kolizje i obroty
+    lotka.setOrigin(sf::Vector2f(lotka.getRadius(), lotka.getRadius()));
     lotka.setPosition(pozycja);
 }
 
-// Funkcja obs³uguj¹ca myszkê
 void pocisk::obsluzWejscie(sf::Event event, const sf::RenderWindow& okno)
 {
-	// Rozpoczêcie celowania (naci¹gniêcie procy)
+    // --- INPUT: ROZPOCZÊCIE CELOWANIA ---
     if (event.is<sf::Event::MouseButtonPressed>())
     {
         const auto& mouseEvent = event.getIf<sf::Event::MouseButtonPressed>();
@@ -26,11 +29,14 @@ void pocisk::obsluzWejscie(sf::Event event, const sf::RenderWindow& okno)
             if (!czyLeci)
             {
                 sf::Vector2f mysz = okno.mapPixelToCoords(sf::Mouse::getPosition(okno));
-                // Sprawdzenie czy klikniêto w obrêb pi³ki
+
+                // Detekcja klikniêcia w okr¹g (Point-Circle Collision)
                 float dx = mysz.x - pozycja.x;
                 float dy = mysz.y - pozycja.y;
                 float dystansKwadrat = dx * dx + dy * dy;
                 float promien = lotka.getRadius();
+
+                // Porównujemy kwadraty odleg³oœci, aby unikn¹æ kosztownego pierwiastkowania (sqrt).
                 if (dystansKwadrat <= promien * promien)
                 {
                     czyCeluje = true;
@@ -39,7 +45,7 @@ void pocisk::obsluzWejscie(sf::Event event, const sf::RenderWindow& okno)
         }
     }
 
-	// Wystrzelenie pocisku (puszczenie procy)
+    // --- INPUT: WYSTRZELENIE ---
     if (event.is<sf::Event::MouseButtonReleased>())
     {
         const auto& mouseEvent = event.getIf<sf::Event::MouseButtonReleased>();
@@ -50,32 +56,36 @@ void pocisk::obsluzWejscie(sf::Event event, const sf::RenderWindow& okno)
                 czyCeluje = false;
                 czyLeci = true;
 
+                // Obliczanie wektora si³y odwrotnego do naci¹gu
                 sf::Vector2f naciag;
                 naciag.x = pozycjaStartowa.x - pozycja.x;
                 naciag.y = pozycjaStartowa.y - pozycja.y;
 
+                // Skalowanie si³y (Mno¿nik mocy rzutu)
                 predkosc = naciag * 0.15f;
+
+                // Reset wizualny na start, fizyka przejmuje kontrolê
                 pozycja = pozycjaStartowa;
                 lotka.setPosition(pozycja);
             }
         }
     }
 }
+
 void pocisk::aktualizujPozycjeCelowania(const sf::RenderWindow& okno)
 {
     if (czyCeluje)
     {
         sf::Vector2f mysz = okno.mapPixelToCoords(sf::Mouse::getPosition(okno));
 
-        // Wektor od œrodka do myszki
+        // Wektor kierunkowy
         sf::Vector2f wektor;
         wektor.x = mysz.x - pozycjaStartowa.x;
         wektor.y = mysz.y - pozycjaStartowa.y;
 
-        // Obliczamy d³ugoœæ tego wektora
         float dlugosc = std::sqrt(wektor.x * wektor.x + wektor.y * wektor.y);
 
-        // Przycinanie wektora do maksymalnego zasiêgu (MAX_NACIAG)
+        // CLAMP: Ograniczenie maksymalnego naci¹gu procy
         if (dlugosc > MAX_NACIAG)
         {
             float skala = MAX_NACIAG / dlugosc;
@@ -83,34 +93,32 @@ void pocisk::aktualizujPozycjeCelowania(const sf::RenderWindow& okno)
             wektor.y *= skala;
         }
 
-        // Aktualizacja wizualna pozycji "na gumce"
+        // Aktualizacja wizualna "naci¹gniêtej" lotki
         pozycja.x = pozycjaStartowa.x + wektor.x;
         pozycja.y = pozycjaStartowa.y + wektor.y;
     }
 }
 
-// G³ówna pêtla fizyki dla pocisku
 void pocisk::aktualizujFizyke(sf::RenderWindow& okno, przeszkoda& cel, sf::Vector2f grawitacja)
 {
-    // Obs³uga logiki przed strza³em
     if (czyCeluje)
     {
         aktualizujPozycjeCelowania(okno);
     }
-    // Obs³uga logiki w trakcie lotu
+
     if (czyLeci)
     {
-		// Sprawdzenie kolizji z przeszkod¹
+        // 1. Sprawdzenie kolizji (zanim przesuniemy)
         odbicie_przeszkoda(this, cel);
 
-		// Aktualizacja pozycji i prêdkoœci
+        // 2. Integracja Eulera (Krok symulacji)
         zmiana_pozycji();
         zmiana_predkosci(grawitacja);
 
-		// Odbicie od pod³o¿a
+        // 3. Ograniczenia œwiata (World Bounds)
         odbicie_podloze(&okno);
 
-		// Reset jeœli pocisk wyleci poza ekran
+        // Kill plane - jeœli wyleci za daleko, resetujemy
         if (pozycja.x > 3000 || pozycja.x < -500)
         {
             resetuj();
@@ -125,51 +133,53 @@ void pocisk::resetuj()
     pozycja = pozycjaStartowa;
     lotka.setPosition(pozycja);
 }
-// Rysowanie bia³ej linii naci¹gu
+
 void pocisk::rysujCelowanie(sf::RenderWindow& okno)
 {
     if (czyCeluje)
     {
-		// Rysowanie linii
-        sf::Vector2i mousePos = sf::Mouse::getPosition(okno);
+        // Debug Line / Wizualizacja naci¹gu
         sf::Vertex line[] =
         {
             sf::Vertex(pozycjaStartowa, sf::Color::White),
-            sf::Vertex(pozycja, sf::Color::Magenta) // Rysujemy do 'pozycja' (tam gdzie naci¹gnêliœmy myszk¹)
+            sf::Vertex(pozycja, sf::Color::Magenta)
         };
         okno.draw(line, 2, sf::PrimitiveType::Lines);
     }
 }
 
-// --- Funkcje pomocnicze (Private) ---
+// --- PRIVATE HELPERS ---
 
 void pocisk::zmiana_predkosci(sf::Vector2f grawitacja)
 {
+    // v = v0 + a*dt (przyjmujemy dt = 1 klatka)
     predkosc.x += grawitacja.x;
     predkosc.y += grawitacja.y;
 }
 
 void pocisk::zmiana_pozycji()
 {
+    // x = x0 + v*dt
     pozycja.x += predkosc.x;
     pozycja.y += predkosc.y;
-    lotka.setPosition(pozycja); 
+    lotka.setPosition(pozycja);
 }
 
 void pocisk::odbicie_podloze(sf::RenderWindow* okno)
 {
-    // Sprawdzenie dolnej krawêdzi ekranu
+    // Kolizja z pod³og¹
     if (pozycja.y + lotka.getRadius() >= POZIOM_PODLOGI)
     {
+        // Odbicie z utrat¹ energii (Coefficient of Restitution = 0.7)
         predkosc.y = predkosc.y * -0.7f;
 
-        // ZMIANA: Ustawiamy pi³kê na powierzchni naszej nowej pod³ogi
+        // Korekcja penetracji (teleportacja na powierzchniê)
         pozycja.y = POZIOM_PODLOGI - lotka.getRadius();
 
+        // Próg uœpienia (Sleep Threshold) - zapobieganie drganiom przy ma³ych prêdkoœciach
         if ((fabs(predkosc.y) < precyzja))
         {
             predkosc.y = 0.0f;
-            // ZMIANA: Tu te¿ poprawka pozycji
             pozycja.y = POZIOM_PODLOGI - lotka.getRadius();
         }
         lotka.setPosition(pozycja);
