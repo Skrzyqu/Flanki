@@ -5,8 +5,8 @@
 Gra::Gra(bool trybBot) :
     // [PERF] Lista inicjalizacyjna zapobiega podwójnej konstrucji obiektów (default + assign).
     tlo(teksturaTla),
-    graczLewy(118.0f, 970.0f, sf::Color::Red),
-    graczPrawy(1802.0f, 970.0f, sf::Color::Blue),
+    graczLewy(118.0f, 970.0f, sf::Color::White),
+    graczPrawy(1802.0f, 970.0f, sf::Color::White),
     skinLewy(150.0f, POZIOM_PODLOGI),
     skinPrawy(1770.0f, POZIOM_PODLOGI),
     turaLewego(true),
@@ -28,6 +28,21 @@ Gra::Gra(bool trybBot) :
     float skalaX = 1920.0f / wymiaryObrazka.x;
     float skalaY = 1080.0f / wymiaryObrazka.y;
     tlo.setScale({ skalaX, skalaY });
+
+    if (!teksturaLotki.loadFromFile("lotka.png"))
+    {
+        std::cerr << "[ERROR] Blad ladowania tekstury lotki!" << std::endl;
+    }
+    else
+    {
+        // W³¹czamy wyg³adzanie, ¿eby lotka ³adnie wygl¹da³a przy obrotach
+        teksturaLotki.setSmooth(true);
+
+        // Przypisanie tekstury do lewego gracza
+        graczLewy.lotka.setTexture(&teksturaLotki);
+        // Przypisanie tekstury do prawego gracza
+        graczPrawy.lotka.setTexture(&teksturaLotki);
+    }
 
     // 1. SETUP FIZYKI ŒWIATA (Pod³oga)
     podloga.rozmiar = { 1920.0f, 1080.0f - POZIOM_PODLOGI };
@@ -350,64 +365,63 @@ void Gra::aktualizuj(sf::RenderWindow& okno, sf::Vector2f grawitacja)
 {
     if (czyKoniecGry) return;
 
-    // [VISUAL] Aktualizacja klatek animacji (niezale¿nie od fizyki)
+    // [VISUAL] Animacje
     skinLewy.aktualizujAnimacje();
     skinPrawy.aktualizujAnimacje();
 
-    // [AI] Decyzje bota
+    // [AI]
     logikaBota(okno);
 
-    // Jeœli trwa faza karnej (bieganie), nie symulujemy fizyki lotek.
-    if (fazaBiegania) return;
+    // --- ZMIANA 1: FIZYKA MUSI DZIA£AÆ ZAWSZE ---
+    // Usuwamy st¹d "if (fazaBiegania) return;", aby lotka mog³a siê odbiæ i spaœæ,
+    // nawet gdy gracze ju¿ zaczynaj¹ biec.
 
-    // [PHYSICS] Symulacja lotu (tylko tutaj aktualizujemy pozycje pocisków)
+    // [PHYSICS] Symulacja lotu
     graczLewy.aktualizujFizyke(okno, puszka, grawitacja);
     graczPrawy.aktualizujFizyke(okno, puszka, grawitacja);
 
-    // Detekcja trafienia (Event Trigger)
+    // --- ZMIANA 2: DETEKCJA TRAFIENIA (NATYCHMIASTOWA) ---
+    // Sprawdzamy czy w tej klatce nast¹pi³o trafienie (ustawione w odbicie.cpp)
     if (puszka.czyTrafiona && !fazaBiegania)
     {
+        // STARTUJEMY BIEGANIE OD RAZU
         fazaBiegania = true;
         biegWStronePuszki = true;
 
-        // Reset lotki, aby nie generowa³a kolejnych kolizji
-        if (turaLewego) graczLewy.resetuj();
-        else            graczPrawy.resetuj();
-
-        puszka.blok.setFillColor(sf::Color::Red); // Visual feedback
+        puszka.blok.setFillColor(sf::Color::Red);
         aktualizujNapis();
+
+        // WA¯NE: NIE resetujemy lotki (gracz.resetuj()). 
+        // Pozwalamy jej lecieæ z now¹ prêdkoœci¹ nadan¹ przez odbicie.cpp.
     }
-    else if (!puszka.czyTrafiona)
+
+    // Reset koloru puszki (opcjonalne)
+    if (!puszka.czyTrafiona)
     {
         puszka.blok.setFillColor(sf::Color(192, 192, 192));
     }
 
-    // Logika rzutu (Animacja -> Wystrzelenie)
+    // --- OBS£UGA RZUTU (TYLKO GDY NIE MA BIEGANIA) ---
+    // Nadal blokujemy sterowanie rzutem, jeœli trwa bieganie,
+    // ale fizyka (powy¿ej) dzia³a dalej.
     if (!fazaBiegania)
     {
-        // Synchronizacja animacji rzutu z logik¹ fizyczn¹
-        if (turaLewego && graczLewy.czyLeci && !strzalWTok)
-        {
-            skinLewy.wykonajRzut();
-        }
+        // ... (tutaj bez zmian: obs³uga skinLewy.wykonajRzut() itp.)
+        if (turaLewego && graczLewy.czyLeci && !strzalWTok) skinLewy.wykonajRzut();
+        if (!turaLewego && graczPrawy.czyLeci && !strzalWTok) skinPrawy.wykonajRzut();
 
-        if (!turaLewego && graczPrawy.czyLeci && !strzalWTok)
-        {
-            skinPrawy.wykonajRzut();
-        }
-
-        // Blokada tury na czas lotu
         if (turaLewego && graczLewy.czyLeci) strzalWTok = true;
         if (!turaLewego && graczPrawy.czyLeci) strzalWTok = true;
 
-        // Sprawdzenie czy lot siê zakoñczy³ (pi³ka przesta³a siê ruszaæ lub wylecia³a)
+        // Sprawdzamy PUD£O (tylko jeœli NIE trafiono)
         if (strzalWTok)
         {
             bool czyKoniecLotu = false;
+            // Sprawdzamy czy lotka siê zatrzyma³a
             if (turaLewego && !graczLewy.czyLeci) czyKoniecLotu = true;
             if (!turaLewego && !graczPrawy.czyLeci) czyKoniecLotu = true;
 
-            // Jeœli koniec lotu i brak trafienia -> Pud³o, zmiana tury
+            // Jeœli lotka spad³a i NIE trafi³a -> zmiana tury
             if (czyKoniecLotu && !puszka.czyTrafiona)
             {
                 zmienTure(okno);

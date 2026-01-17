@@ -54,6 +54,7 @@ public:
     bool czyKoniecGry = false;
     sf::Text napisWygranej;
     sf::Texture teksturaTla;
+    sf::Texture teksturaLotki;
     sf::Sprite tlo;
 
     // --- STATE MACHINE ---

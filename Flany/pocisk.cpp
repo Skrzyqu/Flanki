@@ -184,4 +184,4 @@ void pocisk::odbicie_podloze(sf::RenderWindow* okno)
         }
         lotka.setPosition(pozycja);
     }
-}
+}  
