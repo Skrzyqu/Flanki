@@ -54,6 +54,8 @@ public:
     // --- NOWE POZIOMY (KOLEGA) ---
     void tutorialE2(sf::RenderWindow& okno);
     void tutorialE3(sf::RenderWindow& okno);
+	void tutorialE4(sf::RenderWindow& okno);
+
 
 private:
     void zmienTure(sf::RenderWindow& okno);

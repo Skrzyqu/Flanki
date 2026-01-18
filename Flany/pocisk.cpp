@@ -69,7 +69,7 @@ void pocisk::aktualizujFizyke(sf::RenderWindow& okno, przeszkoda& cel, sf::Vecto
     if (czyLeci)
     {
         // Wywo³ujemy funkcjê z odbicie.cpp
-        odbicie_przeszkoda(this, cel);
+        odbicie_przeszkoda(this, &cel);
 
         zmiana_pozycji();
         zmiana_predkosci(grawitacja);
