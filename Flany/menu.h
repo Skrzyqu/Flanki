@@ -1,51 +1,60 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include <optional>
 
 /**
  * =========================================================================================
  * HIGH LEVEL OVERVIEW
  * =========================================================================================
- * Prosty system UI obs³uguj¹cy scenê startow¹ (Main Menu).
- * * Odpowiedzialnoœæ:
- * 1. Wyœwietlanie opcji wyboru trybu gry.
- * 2. Przechwytywanie inputu w fazie przed uruchomieniem g³ównej pêtli gry.
- * 3. Zwracanie kodu steruj¹cego (Exit Code / Game Mode) do funkcji main().
+ * Prosty system UI obsÅ‚ugujÄ…cy scenÄ™ startowÄ… (Main Menu).
+ * * OdpowiedzialnoÅ›Ä‡:
+ * 1. WyÅ›wietlanie opcji wyboru trybu gry.
+ * 2. Przechwytywanie inputu w fazie przed uruchomieniem gÅ‚Ã³wnej pÄ™tli gry.
+ * 3. Zwracanie kodu sterujÄ…cego (Exit Code / Game Mode) do funkcji main().
  *
  * [ARCHITECTURAL NOTE]
- * W wiêkszym silniku klasa ta dziedziczy³aby po `IScene` lub `IGameState`
- * i by³a zarz¹dzana przez `SceneManager`.
+ * W wiÄ™kszym silniku klasa ta dziedziczyÅ‚aby po `IScene` lub `IGameState`
+ * i byÅ‚a zarzÄ…dzana przez `SceneManager`.
  * =========================================================================================
  */
 class Menu
 {
 public:
     // [RESOURCE MANAGEMENT]
-    // Zasób Font musi byæ za³adowany przed u¿yciem go w sf::Text.
-    // Kolejnoœæ deklaracji w klasie C++ determinuje kolejnoœæ destrukcji (odwrotn¹ do deklaracji).
-    // Text zale¿y od Font, wiêc Font powinien byæ zniszczony ostatni -> zadeklarowany pierwszy.
+    // ZasÃ³b Font musi byÄ‡ zaÅ‚adowany przed uÅ¼yciem go w sf::Text.
+    // KolejnoÅ›Ä‡ deklaracji w klasie C++ determinuje kolejnoÅ›Ä‡ destrukcji (odwrotnÄ… do deklaracji).
+    // Text zaleÅ¼y od Font, wiÄ™c Font powinien byÄ‡ zniszczony ostatni -> zadeklarowany pierwszy.
     sf::Font czcionka;
     sf::Text tekstMenu;
 
+    sf::Texture textureTlo;
+    sf::Texture texturePvP;
+    sf::Texture texturePvE;
+    
+    sf::Sprite  spriteTlo;
+    sf::Sprite  spritePvP;
+    sf::Sprite  spritePvE;
+
     /**
      * @brief Inicjalizuje widok menu i centruje elementy.
-     * @param szerokosc Szerokoœæ okna renderowania (do pozycjonowania UI).
-     * @param wysokosc Wysokoœæ okna renderowania.
+     * @param szerokosc SzerokoÅ›Ä‡ okna renderowania (do pozycjonowania UI).
+     * @param wysokosc WysokoÅ›Ä‡ okna renderowania.
      */
     Menu(float szerokosc, float wysokosc);
 
     /**
-     * @brief [RENDER] Rysuje klatkê menu (T³o + Tekst).
+     * @brief [RENDER] Rysuje klatkÄ™ menu (TÅ‚o + Tekst).
      */
     void rysuj(sf::RenderWindow& okno);
 
     /**
-     * @brief Przetwarza kolejkê zdarzeñ dla fazy menu.
-     * * Implementuje prost¹ logikê wyboru klawiszami 1/2.
+     * @brief Przetwarza kolejkÄ™ zdarzeÅ„ dla fazy menu.
+     * * Implementuje prostÄ… logikÄ™ wyboru klawiszami 1/2.
      * * @return Kod wyboru:
-     * 0 - Brak decyzji (u¿ytkownik myœli / idle).
+     * 0 - Brak decyzji (uÅ¼ytkownik myÅ›li / idle).
      * 1 - Wybrano tryb PvP (Gracz vs Gracz).
      * 2 - Wybrano tryb PvE (Gracz vs Bot).
-     * -1 - ¯¹danie zamkniêcia aplikacji.
+     * -1 - Å»Ä…danie zamkniÄ™cia aplikacji.
      */
     int sprawdzWybor(sf::RenderWindow& okno);
 };
