@@ -20,20 +20,38 @@
 class Menu
 {
 public:
+
+    bool showMapSelection;  // Czy pokazywać wybór mapy?
+    int selectedGameMode;   // 1 = PvP, 2 = PvE
+    int selectedMap;        // 0 = brak, 1 = mapa1, 2 = mapa2, 3 = mapa3
+
     // [RESOURCE MANAGEMENT]
     // Zasób Font musi być załadowany przed użyciem go w sf::Text.
     // Kolejność deklaracji w klasie C++ determinuje kolejność destrukcji (odwrotną do deklaracji).
     // Text zależy od Font, więc Font powinien być zniszczony ostatni -> zadeklarowany pierwszy.
     sf::Font czcionka;
     sf::Text tekstMenu;
+	sf::Text tekstMapy; 
 
     sf::Texture textureTlo;
     sf::Texture texturePvP;
     sf::Texture texturePvE;
+    sf::Texture textureMapa1;
+    sf::Texture textureMapa2;
+    sf::Texture textureMapa3;
     
     sf::Sprite  spriteTlo;
     sf::Sprite  spritePvP;
     sf::Sprite  spritePvE;
+    sf::Sprite  spriteMapa1;
+    sf::Sprite  spriteMapa2;
+    sf::Sprite  spriteMapa3;
+
+    sf::Texture textureBack;
+    sf::Sprite spriteBack;
+
+    sf::Texture textureStart;
+    sf::Sprite spriteStart;
 
     /**
      * @brief Inicjalizuje widok menu i centruje elementy.
@@ -41,6 +59,8 @@ public:
      * @param wysokosc Wysokość okna renderowania.
      */
     Menu(float szerokosc, float wysokosc);
+    
+    
 
     /**
      * @brief [RENDER] Rysuje klatkę menu (Tło + Tekst).

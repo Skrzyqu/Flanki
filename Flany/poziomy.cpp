@@ -28,11 +28,26 @@ void Gra::tutorialE2(sf::RenderWindow& okno)
     sciana2.blok.setSize(sciana2.rozmiar);
     sciana2.blok.setOrigin(sf::Vector2f(sciana2.rozmiar.x / 2.0f, sciana2.rozmiar.y / 2.0f));
     sciana2.blok.setPosition(sciana2.pozycja);
-    sciana2.blok.setFillColor(sf::Color(255, 0, 0));
+    sciana2.blok.setFillColor(sf::Color::Blue);
     sciana2.blok.setOutlineColor(sf::Color::Black);
     sciana2.blok.setOutlineThickness(2.0f);
 
-   
+    if (graczLewy.czyLeci)
+    {
+        
+        odbicie_przeszkoda(&graczLewy, &sciana1);
+        odbicie_przeszkoda(&graczLewy, &sciana2);
+        
+    }
+    else
+    {
+        
+        odbicie_przeszkoda(&graczPrawy, &sciana1);
+        
+        odbicie_przeszkoda(&graczPrawy, &sciana2);
+        
+    }
+
 
     okno.draw(sciana2.blok);
     okno.draw(sciana1.blok);
