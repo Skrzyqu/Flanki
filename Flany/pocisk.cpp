@@ -1,5 +1,5 @@
 #include "pocisk.h"
-#include "odbicie.h" // Uøywamy nag≥Ûwka!
+#include "odbicie.h" // U≈ºywamy nag≈Ç√≥wka!
 #include <cmath>
 #include <iostream>
 
@@ -68,7 +68,7 @@ void pocisk::aktualizujFizyke(sf::RenderWindow& okno, przeszkoda& cel, sf::Vecto
 
     if (czyLeci)
     {
-        // Wywo≥ujemy funkcjÍ z odbicie.cpp
+        // Wywo≈Çujemy funkcjƒô z odbicie.cpp
         odbicie_przeszkoda(this, &cel);
 
         zmiana_pozycji();
@@ -94,7 +94,7 @@ void pocisk::rysujCelowanie(sf::RenderWindow& okno)
     {
         sf::Vertex line[] = {
             sf::Vertex(pozycjaStartowa, sf::Color::White),
-            sf::Vertex(pozycja, sf::Color::Magenta)
+            sf::Vertex(pozycja, sf::Color::Red)
         };
         okno.draw(line, 2, sf::PrimitiveType::Lines);
     }
@@ -116,11 +116,11 @@ void pocisk::odbicie_podloze(sf::RenderWindow* okno)
     // --- LOGIKA FIZYCZNA KOLEGI (Tarcie i toczenie) ---
     if (pozycja.y + lotka.getRadius() >= POZIOM_PODLOGI)
     {
-        // Odbicie z t≥umieniem
+        // Odbicie z t≈Çumieniem
         predkosc.y = predkosc.y * -0.3f;
         pozycja.y = POZIOM_PODLOGI - lotka.getRadius();
 
-        // Jeúli prÍdkoúÊ pionowa jest bardzo ma≥a -> toczenie
+        // Je≈õli prƒôdko≈õƒá pionowa jest bardzo ma≈Ça -> toczenie
         if (std::abs(predkosc.y) < precyzja)
         {
             predkosc.y = 0.0f;
@@ -142,10 +142,11 @@ void pocisk::odbicie_podloze(sf::RenderWindow* okno)
             }
             else
             {
-                // ZATRZYMANIE (Zamiast Sleep() po prostu wy≥πczamy fizykÍ)
+                // ZATRZYMANIE (Zamiast Sleep() po prostu wy≈ÇƒÖczamy fizykƒô)
                 czyLeci = false;
             }
         }
         lotka.setPosition(pozycja);
     }
+
 }
