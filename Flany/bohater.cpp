@@ -7,10 +7,10 @@ Bohater::Bohater(float x, float y) : duszek(tekstura) {
     // [IO/BLOCKING] Synchroniczne ³adowanie wielu plików. Mo¿e powodowaæ "czkawkê" przy starcie.
     // --- 1. £ADUJEMY KLATKI RZUTU ---
     std::vector<std::string> pliki = {
-        "AGH_skin-1.png", // Start rzutu
-        "AGH_skin-2.png",
-        "AGH_skin-3.png",
-        "AGH_skin-4.png"  // Koniec rzutu / Idle
+        "Assets/Textures/AGH_skin-1.png", // Start rzutu
+        "Assets/Textures/AGH_skin-2.png",
+        "Assets/Textures/AGH_skin-3.png",
+        "Assets/Textures/AGH_skin-4.png"  // Koniec rzutu / Idle
     };
     klatkiAnimacji.resize(4);
     for (int i = 0; i < 4; i++) {
@@ -21,10 +21,10 @@ Bohater::Bohater(float x, float y) : duszek(tekstura) {
 
     // --- 2. £ADUJEMY KLATKI BIEGU ---
     std::vector<std::string> plikiBieg = {
-        "AGH_skin-4.png", // Stanie
-        "AGH_run2.png",   // Krok lewa
-        "AGH_skin-4.png", // Stanie
-        "AGH_run4.png"    // Krok prawa
+        "Assets/Textures/AGH_skin-4.png", // Stanie
+        "Assets/Textures/AGH_run2.png",   // Krok lewa
+        "Assets/Textures/AGH_skin-4.png", // Stanie
+        "Assets/Textures/AGH_run4.png"    // Krok prawa
     };
     klatkiBiegania.resize(4);
     for (int i = 0; i < 4; i++) {

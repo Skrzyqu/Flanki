@@ -15,7 +15,7 @@ Gra::Gra(bool trybBot) :
     napisWygranej(czcionka),
     graZBotem(trybBot)
 {
-    if (!teksturaTla.loadFromFile("agh_bg2.png")) {
+    if (!teksturaTla.loadFromFile("Assets/Textures/agh_bg2.png")) {
         std::cerr << "[ERROR] Blad ladowania tla!" << std::endl;
     }
     tlo.setTexture(teksturaTla, true);
@@ -23,7 +23,7 @@ Gra::Gra(bool trybBot) :
     sf::Vector2u wymiaryObrazka = teksturaTla.getSize();
     tlo.setScale(sf::Vector2f(1920.0f / wymiaryObrazka.x, 1080.0f / wymiaryObrazka.y));
 
-    if (teksturaLotki.loadFromFile("lotka.png")) {
+    if (teksturaLotki.loadFromFile("Assets/Textures/lotka.png")) {
         teksturaLotki.setSmooth(true);
         graczLewy.lotka.setTexture(&teksturaLotki);
         graczPrawy.lotka.setTexture(&teksturaLotki);
@@ -36,7 +36,7 @@ Gra::Gra(bool trybBot) :
     podloga.blok.setSize(podloga.rozmiar);
 
     // --- ZMIANA: Dodanie tekstury wall.png (SFML 3.0) ---
-    if (podloga.tekstura.loadFromFile("wall.png")) {
+    if (podloga.tekstura.loadFromFile("Assets/Textures/wall.png")) {
         // W³¹czamy powtarzanie tekstury
         podloga.tekstura.setRepeated(true);
         podloga.blok.setTexture(&podloga.tekstura);
@@ -62,7 +62,7 @@ Gra::Gra(bool trybBot) :
     podloga.czyPuszka = false;
 
     // 2. PUSZKA
-    if (!puszka.tekstura.loadFromFile("beer.png")) {
+    if (!puszka.tekstura.loadFromFile("Assets/Textures/beer.png")) {
         std::cerr << "[ERROR] Blad ladowania tekstury puszki!" << std::endl;
     }
     else {
@@ -102,8 +102,8 @@ Gra::Gra(bool trybBot) :
     skinLewy.ustawZwrot(true);
     skinPrawy.ustawZwrot(false);
 
-    if (!czcionka.openFromFile("PressStart2P-Regular.ttf")) {
-        (void)czcionka.openFromFile("arial.ttf");
+    if (!czcionka.openFromFile("Assets/Fonts/PressStart2P-Regular.ttf")) {
+        (void)czcionka.openFromFile("Assets/Fonts/arial.ttf");
     }
 
     // Konfiguracja tekstów instrukcji

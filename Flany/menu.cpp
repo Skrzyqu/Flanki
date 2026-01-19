@@ -22,7 +22,7 @@ Menu::Menu(float szerokosc, float wysokosc) :
     // [IO/BLOCKING] Synchroniczne ładowanie z dysku.
     // Akceptowalne w menu startowym, ale w trakcie gry powodowałoby "klatkowanie".
     // W produkcji zasoby powinny pochodzić z cache'a (ResourceManager).
-    (void)czcionka.openFromFile("PressStart2P-Regular.ttf");
+    (void)czcionka.openFromFile("Assets/Fonts/PressStart2P-Regular.ttf");
 
     // [TODO]: Hardcoded strings. W przyszłości przenieść do systemu lokalizacji (np. JSON/XML).
     tekstMenu.setString("WYBIERZ TRYB:\n\n");
@@ -37,7 +37,7 @@ Menu::Menu(float szerokosc, float wysokosc) :
     tekstMapy.setFillColor(sf::Color::Black);
     tekstMapy.setStyle(sf::Text::Bold);
 
-    if (!textureTlo.loadFromFile("menu_tlo.png"))
+    if (!textureTlo.loadFromFile("Assets/Textures/menu_tlo.png"))
     {
         // Obsługa błędu - tworzenie zastępczej tekstury
         sf::Texture fallbackTexture;
@@ -45,46 +45,46 @@ Menu::Menu(float szerokosc, float wysokosc) :
         textureTlo.loadFromImage(fallbackImage);
     }
 
-    if (!texturePvP.loadFromFile("btn_pvp.png"))
+    if (!texturePvP.loadFromFile("Assets/Textures/btn_pvp.png"))
     {
         sf::Texture fallbackTexture;
         sf::Image fallbackImage({ 200, 50 }, sf::Color(100, 100, 200));
         texturePvP.loadFromImage(fallbackImage);
     }
 
-    if (!texturePvE.loadFromFile("btn_pve.png"))
+    if (!texturePvE.loadFromFile("Assets/Textures/btn_pve.png"))
     {
         sf::Texture fallbackTexture;
         sf::Image fallbackImage({ 200, 50 }, sf::Color(200, 100, 100));
         texturePvE.loadFromImage(fallbackImage);
     }
 
-    if (!textureMapa1.loadFromFile("mapa1.png"))
+    if (!textureMapa1.loadFromFile("Assets/Textures/mapa1.png"))
     {
         sf::Image fallbackImage({ 400, 300 }, sf::Color(34, 139, 34)); 
         textureMapa1.loadFromImage(fallbackImage);
     }
 
-    if (!textureMapa2.loadFromFile("mapa2.png"))
+    if (!textureMapa2.loadFromFile("Assets/Textures/mapa2.png"))
     {
         sf::Image fallbackImage({ 400, 300 }, sf::Color(210, 180, 140)); 
         textureMapa2.loadFromImage(fallbackImage);
     }
 
-    if (!textureMapa3.loadFromFile("mapa3.png"))
+    if (!textureMapa3.loadFromFile("Assets/Textures/mapa3.png"))
     {
         sf::Image fallbackImage({ 400, 300 }, sf::Color(128, 128, 128)); 
         textureMapa3.loadFromImage(fallbackImage);
     }
 
-    if (!textureBack.loadFromFile("btn_back.png"))
+    if (!textureBack.loadFromFile("Assets/Textures/btn_back.png"))
     {
         sf::Image fallbackImage({ 150, 50 }, sf::Color(100, 100, 100));
         textureBack.loadFromImage(fallbackImage);
     }
     spriteBack = sf::Sprite(textureBack);
 
-    if (!textureStart.loadFromFile("btn_start.png"))
+    if (!textureStart.loadFromFile("Assets/Textures/btn_start.png"))
     {
         sf::Image fallbackImage({ 200, 80 }, sf::Color(50, 150, 50));
         textureStart.loadFromImage(fallbackImage);

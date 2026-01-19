@@ -1,5 +1,12 @@
 ﻿  gra.cpp
-  poziomy.cpp
+  menu.cpp
+C:\Users\Michał\source\repos\Flanki\Flany\menu.cpp(45,33): warning C4834: odrzucenie wartości zwracanej funkcji z atrybutem [[nodiscard]]
+C:\Users\Michał\source\repos\Flanki\Flany\menu.cpp(52,33): warning C4834: odrzucenie wartości zwracanej funkcji z atrybutem [[nodiscard]]
+C:\Users\Michał\source\repos\Flanki\Flany\menu.cpp(59,33): warning C4834: odrzucenie wartości zwracanej funkcji z atrybutem [[nodiscard]]
+C:\Users\Michał\source\repos\Flanki\Flany\menu.cpp(65,35): warning C4834: odrzucenie wartości zwracanej funkcji z atrybutem [[nodiscard]]
+C:\Users\Michał\source\repos\Flanki\Flany\menu.cpp(71,35): warning C4834: odrzucenie wartości zwracanej funkcji z atrybutem [[nodiscard]]
+C:\Users\Michał\source\repos\Flanki\Flany\menu.cpp(77,35): warning C4834: odrzucenie wartości zwracanej funkcji z atrybutem [[nodiscard]]
+C:\Users\Michał\source\repos\Flanki\Flany\menu.cpp(83,34): warning C4834: odrzucenie wartości zwracanej funkcji z atrybutem [[nodiscard]]
+C:\Users\Michał\source\repos\Flanki\Flany\menu.cpp(90,35): warning C4834: odrzucenie wartości zwracanej funkcji z atrybutem [[nodiscard]]
   Generowanie kodu...
-  LINK : nie znaleziono elementu C:\Users\Michał\source\repos\Flanki\x64\Debug\Flany.exe ani nie został on skompilowany podczas ostatniego konsolidowania przyrostowego; zostanie wykonana pełna konsolidacja
   Flany.vcxproj -> C:\Users\Michał\source\repos\Flanki\x64\Debug\Flany.exe

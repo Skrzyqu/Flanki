@@ -15,7 +15,7 @@ static bool zaladowanoTeksture = false;
 // Funkcja pomocnicza do ³adowania tekstury (Singleton-ish)
 void zapewnijTekstureSciany() {
     if (!zaladowanoTeksture) {
-        if (!teksturaSciany.loadFromFile("wall.png")) {
+        if (!teksturaSciany.loadFromFile("Assets/Textures/wall.png")) {
             std::cerr << "Blad ladowania wall.png" << std::endl;
             // Opcjonalnie: stworzenie domyœlnej tekstury w razie b³êdu
         }
