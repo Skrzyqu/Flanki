@@ -30,10 +30,34 @@ Gra::Gra(bool trybBot) :
     }
 
     // 1. POD£OGA
+// 1. POD£OGA
     podloga.rozmiar = sf::Vector2f(1920.0f, 1080.0f - POZIOM_PODLOGI);
     podloga.pozycja = sf::Vector2f(0.0f, POZIOM_PODLOGI);
     podloga.blok.setSize(podloga.rozmiar);
-    podloga.blok.setFillColor(sf::Color(34, 139, 34));
+
+    // --- ZMIANA: Dodanie tekstury wall.png (SFML 3.0) ---
+    if (podloga.tekstura.loadFromFile("wall.png")) {
+        // W³¹czamy powtarzanie tekstury
+        podloga.tekstura.setRepeated(true);
+        podloga.blok.setTexture(&podloga.tekstura);
+
+        // SFML 3.0: sf::IntRect wymaga podania wektorów: {pozycja}, {rozmiar}
+        // U¿ywamy inicjalizacji klamrowej {} dla sf::Vector2i
+        podloga.blok.setTextureRect(sf::IntRect(
+            { 0, 0 },
+            { static_cast<int>(podloga.rozmiar.x), static_cast<int>(podloga.rozmiar.y) }
+        ));
+
+        // Resetujemy kolor na bia³y, aby widzieæ oryginaln¹ teksturê
+        podloga.blok.setFillColor(sf::Color::White);
+    }
+    else {
+        std::cerr << "[ERROR] Blad ladowania tekstury wall.png dla podlogi!" << std::endl;
+        // Kolor awaryjny (zielony) w przypadku braku pliku
+        podloga.blok.setFillColor(sf::Color(34, 139, 34));
+    }
+    // ----------------------------------------------------
+
     podloga.blok.setPosition(podloga.pozycja);
     podloga.czyPuszka = false;
 
