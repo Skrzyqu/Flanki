@@ -1,6 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include "Gra.h"
 #include "Menu.h"
+#include <iostream>
 
 /**
  * =========================================================================================
@@ -31,12 +32,26 @@ int main()
     // --- 1. STATE: MENU G£ÓWNE ---
     Menu menu(1920.0f, 1080.0f);
     int wybranyTryb = 0; // Kody: 0 = Idle, 1 = PvP, 2 = PvE
+	int wybranaMapa = 0; // Kody: 0 = Idle, 1 = Mapa1, 2 = Mapa2, 3 = Mapa3
 
     // Pêtla "Menu Loop" - blokuje przejœcie do gry, dopóki gracz nie wybierze trybu.
     while (okno.isOpen() && wybranyTryb == 0)
     {
-        wybranyTryb = menu.sprawdzWybor(okno);
-        menu.rysuj(okno);
+        int wybor = menu.sprawdzWybor(okno);
+        
+        if (wybor >= 21) {
+            // Rozpoczêcie gry z map¹
+            wybranyTryb = (wybor / 10) % 10; // Cyfra dziesi¹tek (1=PvP, 2=PvE)
+            wybranaMapa = wybor % 10;        // Cyfra jednoœci (1,2,3)
+            std::cout << "Wybrano tryb: " << wybranyTryb
+                << ", mapa: " << wybranaMapa << std::endl;
+        }
+        else if (wybor == -1) {
+            return 0; // Zamkniêcie aplikacji
+        }
+        else {
+            menu.rysuj(okno);
+        }
     }
 
     // Graceful Shutdown w przypadku zamkniêcia okna z poziomu menu (np. Alt+F4).
@@ -48,6 +63,8 @@ int main()
     // [MEMORY] Alokacja zasobów gry nastêpuje dopiero po wyjœciu z menu.
     bool graZBotem = (wybranyTryb == 2);
     Gra gra(graZBotem);
+
+	gra.setWybranyPoziom(wybranaMapa);
 
 
     // --- 3. G£ÓWNA PÊTLA GRY (GAME LOOP) ---

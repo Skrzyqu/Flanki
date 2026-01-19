@@ -155,7 +155,20 @@ void Gra::rysuj(sf::RenderWindow& okno)
     okno.draw(podloga.blok);
 
     // SCALENIE: Rysowanie poziomu trampolin
-    tutorialE3(okno);
+    switch (wybranyPoziom)
+    {
+        case 1:
+            tutorialE2(okno);
+		    break;
+        case 2:
+			tutorialE3(okno);
+            break;
+		case 3:
+            tutorialE4(okno);
+			break;
+        default:
+            break;
+    }
 
     okno.draw(puszka.duszek); // Rysujemy sprite (nie blok)
     okno.draw(tloPaskaLewego); okno.draw(piwoLewe);

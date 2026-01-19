@@ -46,6 +46,7 @@ public:
     int licznikBota = 0;
 
     Gra(bool trybBot);
+    void setWybranyPoziom(int poziom) { wybranyPoziom = poziom; }
 
     void obsluzWejscie(sf::RenderWindow& okno);
     void aktualizuj(sf::RenderWindow& okno, sf::Vector2f grawitacja);
@@ -54,6 +55,8 @@ public:
     // --- NOWE POZIOMY (KOLEGA) ---
     void tutorialE2(sf::RenderWindow& okno);
     void tutorialE3(sf::RenderWindow& okno);
+	void tutorialE4(sf::RenderWindow& okno);
+
 
 private:
     void zmienTure(sf::RenderWindow& okno);
@@ -62,4 +65,5 @@ private:
     void obsluzPicie();
     void sprawdzWygrana();
     void logikaBota(sf::RenderWindow& okno);
+    int wybranyPoziom;
 };

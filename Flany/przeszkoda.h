@@ -16,6 +16,8 @@ public:
     // --- POLA KOLEGI (Fizyka) ---
     bool czyPuszka = false;       // Czy to cel gry, czy œciana?
     float sprezystosc = 1.0f;     // Wspó³czynnik odbicia
+	int hp = 3;// Punkty ¿ycia (ile trafieñ wytrzyma)
+	bool czyNiezniszczalna = true; // Jeœli true, puszka nie mo¿e zostaæ zniszczona
 
     // --- TWOJE POLA (Animacja) ---
     bool wTrakcieUpadku = false;

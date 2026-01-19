@@ -1,2 +1,10 @@
-﻿  odbicie.cpp
-  Flany.vcxproj -> C:\Users\micha\source\repos\Flanki\x64\Debug\Flany.exe
+﻿  menu.cpp
+C:\Users\mikon\source\repos2\Flanki\Flany\menu.cpp(45,33): warning C4834: odrzucenie wartości zwracanej funkcji z atrybutem [[nodiscard]]
+C:\Users\mikon\source\repos2\Flanki\Flany\menu.cpp(52,33): warning C4834: odrzucenie wartości zwracanej funkcji z atrybutem [[nodiscard]]
+C:\Users\mikon\source\repos2\Flanki\Flany\menu.cpp(59,33): warning C4834: odrzucenie wartości zwracanej funkcji z atrybutem [[nodiscard]]
+C:\Users\mikon\source\repos2\Flanki\Flany\menu.cpp(65,35): warning C4834: odrzucenie wartości zwracanej funkcji z atrybutem [[nodiscard]]
+C:\Users\mikon\source\repos2\Flanki\Flany\menu.cpp(71,35): warning C4834: odrzucenie wartości zwracanej funkcji z atrybutem [[nodiscard]]
+C:\Users\mikon\source\repos2\Flanki\Flany\menu.cpp(77,35): warning C4834: odrzucenie wartości zwracanej funkcji z atrybutem [[nodiscard]]
+C:\Users\mikon\source\repos2\Flanki\Flany\menu.cpp(83,34): warning C4834: odrzucenie wartości zwracanej funkcji z atrybutem [[nodiscard]]
+C:\Users\mikon\source\repos2\Flanki\Flany\menu.cpp(90,35): warning C4834: odrzucenie wartości zwracanej funkcji z atrybutem [[nodiscard]]
+  Flany.vcxproj -> C:\Users\mikon\source\repos2\Flanki\x64\Debug\Flany.exe
