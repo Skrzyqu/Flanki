@@ -8,8 +8,33 @@
 #define srodekX 960.0f
 #define srodekY 540.0f
 
+// Statyczna tekstura dla wszystkich œcian w pliku
+static sf::Texture teksturaSciany;
+static bool zaladowanoTeksture = false;
+
+// Funkcja pomocnicza do ³adowania tekstury (Singleton-ish)
+void zapewnijTekstureSciany() {
+    if (!zaladowanoTeksture) {
+        if (!teksturaSciany.loadFromFile("wall.png")) {
+            std::cerr << "Blad ladowania wall.png" << std::endl;
+            // Opcjonalnie: stworzenie domyœlnej tekstury w razie b³êdu
+        }
+        teksturaSciany.setRepeated(true); // Wa¿ne: tekstura bêdzie siê powtarzaæ
+        zaladowanoTeksture = true;
+    }
+}
+
+// Funkcja pomocnicza do nak³adania tekstury na blok
+void nalozTekstureNaSciane(sf::RectangleShape& blok, const sf::Vector2f& rozmiar) {
+    blok.setTexture(&teksturaSciany);
+    // SFML 3.0: IntRect przyjmuje wektory ({pos}, {size})
+    blok.setTextureRect(sf::IntRect({ 0, 0 }, sf::Vector2i(rozmiar)));
+}
+
 void Gra::tutorialE2(sf::RenderWindow& okno)
 {
+    zapewnijTekstureSciany(); // Upewnij siê, ¿e tekstura jest za³adowana
+
     float przesuniecieS1 = 200;
     static przeszkoda sciana1;
     sciana1.rozmiar = { 30.0f, 280.0f };
@@ -17,9 +42,12 @@ void Gra::tutorialE2(sf::RenderWindow& okno)
     sciana1.blok.setSize(sciana1.rozmiar);
     sciana1.blok.setOrigin(sf::Vector2f(sciana1.rozmiar.x / 2.0f, sciana1.rozmiar.y / 2.0f));
     sciana1.blok.setPosition(sciana1.pozycja);
-    sciana1.blok.setFillColor(sf::Color(255, 0, 0));
+    sciana1.blok.setFillColor(sf::Color(255, 0, 0)); // Zostawiamy kolor, tekstura bêdzie "zafarbowana" na czerwono
     sciana1.blok.setOutlineColor(sf::Color::Black);
     sciana1.blok.setOutlineThickness(2.0f);
+
+    // Dodanie tekstury
+    nalozTekstureNaSciane(sciana1.blok, sciana1.rozmiar);
 
     static przeszkoda sciana2;
     sciana2.rozmiar = sciana1.rozmiar;
@@ -27,26 +55,23 @@ void Gra::tutorialE2(sf::RenderWindow& okno)
     sciana2.blok.setSize(sciana2.rozmiar);
     sciana2.blok.setOrigin(sf::Vector2f(sciana2.rozmiar.x / 2.0f, sciana2.rozmiar.y / 2.0f));
     sciana2.blok.setPosition(sciana2.pozycja);
-    sciana2.blok.setFillColor(sf::Color::Blue);
+    sciana2.blok.setFillColor(sf::Color::Blue); // Tekstura zafarbowana na niebiesko
     sciana2.blok.setOutlineColor(sf::Color::Black);
     sciana2.blok.setOutlineThickness(2.0f);
 
+    // Dodanie tekstury
+    nalozTekstureNaSciane(sciana2.blok, sciana2.rozmiar);
+
     if (graczLewy.czyLeci)
     {
-        
         odbicie_przeszkoda(&graczLewy, &sciana1);
         odbicie_przeszkoda(&graczLewy, &sciana2);
-        
     }
     else
     {
-        
         odbicie_przeszkoda(&graczPrawy, &sciana1);
-        
         odbicie_przeszkoda(&graczPrawy, &sciana2);
-        
     }
-
 
     okno.draw(sciana2.blok);
     okno.draw(sciana1.blok);
@@ -54,12 +79,14 @@ void Gra::tutorialE2(sf::RenderWindow& okno)
 
 void Gra::tutorialE3(sf::RenderWindow& okno)
 {
+    zapewnijTekstureSciany();
+
     float przesuniecie1 = 600;
 
     // trampolina L
     static przeszkoda trampolinaL;
     trampolinaL.rozmiar = { 200.0f, 10.0f };
-    trampolinaL.pozycja = { srodekX - przesuniecie1, POZIOM_PODLOGI-trampolinaL.rozmiar.y/2.0f};
+    trampolinaL.pozycja = { srodekX - przesuniecie1, POZIOM_PODLOGI - trampolinaL.rozmiar.y / 2.0f };
     trampolinaL.blok.setSize(trampolinaL.rozmiar);
     trampolinaL.blok.setOrigin(sf::Vector2f(trampolinaL.rozmiar.x / 2.0f, trampolinaL.rozmiar.y / 2.0f));
     trampolinaL.blok.setPosition(trampolinaL.pozycja);
@@ -81,88 +108,97 @@ void Gra::tutorialE3(sf::RenderWindow& okno)
     trampolinaP.sprezystosc = 3.0f;
 
     //Sciana 1L
-    
-	przesuniecie1 -= 250.0f;
+    przesuniecie1 -= 250.0f;
 
     static przeszkoda sciana1L;
-	sciana1L.rozmiar = { 30.0f, 80.0f };
-	sciana1L.pozycja = { srodekX - przesuniecie1, POZIOM_PODLOGI - sciana1L.rozmiar.y / 2.0f };
-	sciana1L.blok.setSize(sciana1L.rozmiar);
-	sciana1L.blok.setOrigin(sf::Vector2f(sciana1L.rozmiar.x / 2.0f, sciana1L.rozmiar.y / 2.0f));
-	sciana1L.blok.setPosition(sciana1L.pozycja);
-	sciana1L.blok.setFillColor(sf::Color::Red);
-	sciana1L.blok.setOutlineColor(sf::Color::Black);
-	sciana1L.blok.setOutlineThickness(2.0f);
-	//Sciana 1P
-	static przeszkoda sciana1P;
+    sciana1L.rozmiar = { 30.0f, 80.0f };
+    sciana1L.pozycja = { srodekX - przesuniecie1, POZIOM_PODLOGI - sciana1L.rozmiar.y / 2.0f };
+    sciana1L.blok.setSize(sciana1L.rozmiar);
+    sciana1L.blok.setOrigin(sf::Vector2f(sciana1L.rozmiar.x / 2.0f, sciana1L.rozmiar.y / 2.0f));
+    sciana1L.blok.setPosition(sciana1L.pozycja);
+    sciana1L.blok.setFillColor(sf::Color::Red);
+    sciana1L.blok.setOutlineColor(sf::Color::Black);
+    sciana1L.blok.setOutlineThickness(2.0f);
+
+    nalozTekstureNaSciane(sciana1L.blok, sciana1L.rozmiar);
+
+    //Sciana 1P
+    static przeszkoda sciana1P;
     sciana1P = sciana1L;
-	sciana1P.pozycja = { srodekX + przesuniecie1, POZIOM_PODLOGI - sciana1P.rozmiar.y / 2.0f };
+    sciana1P.pozycja = { srodekX + przesuniecie1, POZIOM_PODLOGI - sciana1P.rozmiar.y / 2.0f };
     sciana1P.blok.setPosition(sciana1P.pozycja);
-	sciana1P.blok.setFillColor(sf::Color::Blue);
-	//Sciana 2L
-	przesuniecie1 += 200.0f;
-	static przeszkoda sciana2L;
-	sciana2L.rozmiar = { 30.0f, 600.0f };
-	sciana2L.pozycja = { srodekX - przesuniecie1, POZIOM_PODLOGI - (sciana2L.rozmiar.y / 2.0f) -100};
-	sciana2L.blok.setSize(sciana2L.rozmiar);
-	sciana2L.blok.setOrigin(sf::Vector2f(sciana2L.rozmiar.x / 2.0f, sciana2L.rozmiar.y / 2.0f));
-	sciana2L.blok.setPosition(sciana2L.pozycja);
-	sciana2L.blok.setFillColor(sf::Color::Red);
-	sciana2L.blok.setOutlineColor(sf::Color::Black);
-	sciana2L.blok.setOutlineThickness(2.0f);
+    sciana1P.blok.setFillColor(sf::Color::Blue);
+
+    // Wa¿ne: po skopiowaniu obiektu (sciana1P = sciana1L) tekstura jest OK, 
+    // ale TextureRect trzeba by ewentualnie odœwie¿yæ, jeœli rozmiar by siê zmieni³.
+    // Tutaj rozmiar jest ten sam, wiêc jest ok.
+
+    //Sciana 2L
+    przesuniecie1 += 200.0f;
+    static przeszkoda sciana2L;
+    sciana2L.rozmiar = { 30.0f, 600.0f };
+    sciana2L.pozycja = { srodekX - przesuniecie1, POZIOM_PODLOGI - (sciana2L.rozmiar.y / 2.0f) - 100 };
+    sciana2L.blok.setSize(sciana2L.rozmiar);
+    sciana2L.blok.setOrigin(sf::Vector2f(sciana2L.rozmiar.x / 2.0f, sciana2L.rozmiar.y / 2.0f));
+    sciana2L.blok.setPosition(sciana2L.pozycja);
+    sciana2L.blok.setFillColor(sf::Color::Red);
+    sciana2L.blok.setOutlineColor(sf::Color::Black);
+    sciana2L.blok.setOutlineThickness(2.0f);
+
+    nalozTekstureNaSciane(sciana2L.blok, sciana2L.rozmiar);
+
     //Sciana2P
-	static przeszkoda sciana2P;
-	sciana2P = sciana2L;
-	sciana2P.pozycja = { srodekX + przesuniecie1, sciana2L.pozycja.y };
-	sciana2P.blok.setPosition(sciana2P.pozycja);
-	sciana2P.blok.setFillColor(sf::Color::Blue);
+    static przeszkoda sciana2P;
+    sciana2P = sciana2L;
+    sciana2P.pozycja = { srodekX + przesuniecie1, sciana2L.pozycja.y };
+    sciana2P.blok.setPosition(sciana2P.pozycja);
+    sciana2P.blok.setFillColor(sf::Color::Blue);
 
-  
     // Sciany rysowanie
-
     if (graczLewy.czyLeci)
     {
         odbicie_przeszkoda(&graczLewy, &trampolinaL);
         odbicie_przeszkoda(&graczLewy, &trampolinaP);
-		odbicie_przeszkoda(&graczLewy, &sciana1L);
-		odbicie_przeszkoda(&graczLewy, &sciana1P);
-		odbicie_przeszkoda(&graczLewy, &sciana2L);
-		odbicie_przeszkoda(&graczLewy, &sciana2P);
+        odbicie_przeszkoda(&graczLewy, &sciana1L);
+        odbicie_przeszkoda(&graczLewy, &sciana1P);
+        odbicie_przeszkoda(&graczLewy, &sciana2L);
+        odbicie_przeszkoda(&graczLewy, &sciana2P);
     }
     else
-    { 
+    {
         odbicie_przeszkoda(&graczPrawy, &trampolinaL);
         odbicie_przeszkoda(&graczPrawy, &trampolinaP);
-		odbicie_przeszkoda(&graczPrawy, &sciana1L);
-		odbicie_przeszkoda(&graczPrawy, &sciana1P);
-		odbicie_przeszkoda(&graczPrawy, &sciana2L);
-		odbicie_przeszkoda(&graczPrawy, &sciana2P);
+        odbicie_przeszkoda(&graczPrawy, &sciana1L);
+        odbicie_przeszkoda(&graczPrawy, &sciana1P);
+        odbicie_przeszkoda(&graczPrawy, &sciana2L);
+        odbicie_przeszkoda(&graczPrawy, &sciana2P);
     }
-    
-    
- 
+
     okno.draw(trampolinaL.blok);
     okno.draw(trampolinaP.blok);
-	okno.draw(sciana1L.blok);
-	okno.draw(sciana1P.blok);
-	okno.draw(sciana2L.blok);
-	okno.draw(sciana2P.blok);
+    okno.draw(sciana1L.blok);
+    okno.draw(sciana1P.blok);
+    okno.draw(sciana2L.blok);
+    okno.draw(sciana2P.blok);
 }
 
 void Gra::tutorialE4(sf::RenderWindow& okno)
 {
-    
-	float przesuniecie1 = 300;
-    
+    zapewnijTekstureSciany();
+
+    float przesuniecie1 = 300;
+
     static przeszkoda ScianaHP1L;
-	ScianaHP1L.rozmiar = { 20.0f, 50.0f };
-	ScianaHP1L.pozycja = { srodekX - przesuniecie1, POZIOM_PODLOGI-ScianaHP1L.rozmiar.y/2.0f -300};
-	ScianaHP1L.blok.setSize(ScianaHP1L.rozmiar);
-	ScianaHP1L.blok.setOrigin(sf::Vector2f(ScianaHP1L.rozmiar.x / 2.0f, ScianaHP1L.rozmiar.y / 2.0f));
-	ScianaHP1L.blok.setPosition(ScianaHP1L.pozycja);
-	ScianaHP1L.blok.setFillColor(sf::Color::White);
-	ScianaHP1L.blok.setOutlineThickness(3.0f);
-    
+    ScianaHP1L.rozmiar = { 20.0f, 50.0f };
+    ScianaHP1L.pozycja = { srodekX - przesuniecie1, POZIOM_PODLOGI - ScianaHP1L.rozmiar.y / 2.0f - 300 };
+    ScianaHP1L.blok.setSize(ScianaHP1L.rozmiar);
+    ScianaHP1L.blok.setOrigin(sf::Vector2f(ScianaHP1L.rozmiar.x / 2.0f, ScianaHP1L.rozmiar.y / 2.0f));
+    ScianaHP1L.blok.setPosition(ScianaHP1L.pozycja);
+    ScianaHP1L.blok.setFillColor(sf::Color::White); // Bia³y kolor, wiêc tekstura bêdzie naturalna
+    ScianaHP1L.blok.setOutlineThickness(3.0f);
+
+    //nalozTekstureNaSciane(ScianaHP1L.blok, ScianaHP1L.rozmiar);
+
     switch (ScianaHP1L.hp)
     {
     case 3:
@@ -175,13 +211,14 @@ void Gra::tutorialE4(sf::RenderWindow& okno)
         ScianaHP1L.blok.setOutlineColor(sf::Color::Red);
         break;
     }
-    
+
     ScianaHP1L.czyNiezniszczalna = false;
 
-    static przeszkoda ScianaHP1P= ScianaHP1L;
-	ScianaHP1P.pozycja = { srodekX + przesuniecie1, ScianaHP1L.pozycja.y };
-	ScianaHP1P.blok.setPosition(ScianaHP1P.pozycja);
-	ScianaHP1P.blok.setOutlineThickness(3.0f);
+    static przeszkoda ScianaHP1P = ScianaHP1L;
+    ScianaHP1P.pozycja = { srodekX + przesuniecie1, ScianaHP1L.pozycja.y };
+    ScianaHP1P.blok.setPosition(ScianaHP1P.pozycja);
+    ScianaHP1P.blok.setOutlineThickness(3.0f);
+    // TextureRect jest kopiowany z ScianaHP1L, wiêc jest ok
 
     switch (ScianaHP1P.hp)
     {
@@ -196,27 +233,23 @@ void Gra::tutorialE4(sf::RenderWindow& okno)
         break;
     }
 
-        
-    
-    
     //
-   
+
     static przeszkoda ScianaL1;
-	ScianaL1.rozmiar = { 15.0f, 297.0f };
-	ScianaL1.pozycja = { srodekX - przesuniecie1, POZIOM_PODLOGI - ScianaL1.rozmiar.y / 2.0f};
-	ScianaL1.blok.setSize(ScianaL1.rozmiar);
-	ScianaL1.blok.setOrigin(sf::Vector2f(ScianaL1.rozmiar.x / 2.0f, ScianaL1.rozmiar.y / 2.0f));
-	ScianaL1.blok.setPosition(ScianaL1.pozycja);
-	ScianaL1.blok.setFillColor(sf::Color::Red);
-	ScianaL1.blok.setOutlineColor(sf::Color::Black);
+    ScianaL1.rozmiar = { 15.0f, 297.0f };
+    ScianaL1.pozycja = { srodekX - przesuniecie1, POZIOM_PODLOGI - ScianaL1.rozmiar.y / 2.0f };
+    ScianaL1.blok.setSize(ScianaL1.rozmiar);
+    ScianaL1.blok.setOrigin(sf::Vector2f(ScianaL1.rozmiar.x / 2.0f, ScianaL1.rozmiar.y / 2.0f));
+    ScianaL1.blok.setPosition(ScianaL1.pozycja);
+    ScianaL1.blok.setFillColor(sf::Color::Red);
+    ScianaL1.blok.setOutlineColor(sf::Color::Black);
 
-    
-	static przeszkoda ScianaP1 = ScianaL1;
-	ScianaP1.pozycja = { srodekX + przesuniecie1, ScianaP1.pozycja.y };
-	ScianaP1.blok.setPosition(ScianaP1.pozycja);
-	ScianaP1.blok.setFillColor(sf::Color::Blue);
-    
+    nalozTekstureNaSciane(ScianaL1.blok, ScianaL1.rozmiar);
 
+    static przeszkoda ScianaP1 = ScianaL1;
+    ScianaP1.pozycja = { srodekX + przesuniecie1, ScianaP1.pozycja.y };
+    ScianaP1.blok.setPosition(ScianaP1.pozycja);
+    ScianaP1.blok.setFillColor(sf::Color::Blue);
 
     static przeszkoda ScianaL2;
     ScianaL2.rozmiar = { 15.0f, 50.0f };
@@ -226,46 +259,36 @@ void Gra::tutorialE4(sf::RenderWindow& okno)
     ScianaL2.blok.setPosition(ScianaL2.pozycja);
     ScianaL2.blok.setFillColor(sf::Color::Red);
     ScianaL2.blok.setOutlineColor(sf::Color::Black);
-    
 
-    static przeszkoda ScianaP2=ScianaL2;
+    nalozTekstureNaSciane(ScianaL2.blok, ScianaL2.rozmiar);
+
+    static przeszkoda ScianaP2 = ScianaL2;
     ScianaP2.pozycja = { srodekX + przesuniecie1, ScianaP2.pozycja.y };
     ScianaP2.blok.setPosition(ScianaP2.pozycja);
     ScianaP2.blok.setFillColor(sf::Color::Blue);
 
-
-
-
-
-
-
-
-
-    
-    //trampoliny 1
+    //trampoliny 1 (Trampoliny zazwyczaj s¹ czarne, nie nak³adam tu tekstury œciany, chyba ¿e chcesz)
     static przeszkoda trampolina1L;
     przesuniecie1 += 300;
     trampolina1L.rozmiar = { 10.0f, 100.0f };
-    trampolina1L.pozycja = { srodekX - przesuniecie1, POZIOM_PODLOGI - trampolina1L.rozmiar.y / 2.0f -100 };
+    trampolina1L.pozycja = { srodekX - przesuniecie1, POZIOM_PODLOGI - trampolina1L.rozmiar.y / 2.0f - 100 };
     trampolina1L.blok.setSize(trampolina1L.rozmiar);
     trampolina1L.blok.setOrigin(sf::Vector2f(trampolina1L.rozmiar.x / 2.0f, trampolina1L.rozmiar.y / 2.0f));
     trampolina1L.blok.setPosition(trampolina1L.pozycja);
     trampolina1L.blok.setFillColor(sf::Color(0, 0, 0));
     trampolina1L.blok.setOutlineColor(sf::Color::Yellow);
     trampolina1L.blok.setOutlineThickness(2.0f);
-    trampolina1L.sprezystosc = 3.0f; 
-
+    trampolina1L.sprezystosc = 3.0f;
 
     static przeszkoda trampolina1P = trampolina1L;
     trampolina1P.pozycja = { srodekX + przesuniecie1, POZIOM_PODLOGI - trampolina1L.rozmiar.y / 2.0f - 100 };
     trampolina1P.blok.setPosition(trampolina1P.pozycja);
 
-
     //trampolina 2
     static przeszkoda trampolina2L;
     przesuniecie1 -= 100;
     trampolina2L.rozmiar = { 100.0f, 10.0f };
-    trampolina2L.pozycja = { srodekX - przesuniecie1, POZIOM_PODLOGI - trampolina2L.rozmiar.y / 2.0f  };
+    trampolina2L.pozycja = { srodekX - przesuniecie1, POZIOM_PODLOGI - trampolina2L.rozmiar.y / 2.0f };
     trampolina2L.blok.setSize(trampolina2L.rozmiar);
     trampolina2L.blok.setOrigin(sf::Vector2f(trampolina2L.rozmiar.x / 2.0f, trampolina2L.rozmiar.y / 2.0f));
     trampolina2L.blok.setPosition(trampolina2L.pozycja);
@@ -273,7 +296,6 @@ void Gra::tutorialE4(sf::RenderWindow& okno)
     trampolina2L.blok.setOutlineColor(sf::Color::Yellow);
     trampolina2L.blok.setOutlineThickness(2.0f);
     trampolina2L.sprezystosc = 3.0f;
-
 
     static przeszkoda trampolina2P = trampolina2L;
     trampolina2P.pozycja = { srodekX + przesuniecie1, POZIOM_PODLOGI - trampolina2L.rozmiar.y / 2.0f };
@@ -292,12 +314,10 @@ void Gra::tutorialE4(sf::RenderWindow& okno)
     trampolina3L.blok.setOutlineThickness(2.0f);
     trampolina3L.sprezystosc = 3.0f;
 
-
     static przeszkoda trampolina3P = trampolina3L;
     trampolina3P.pozycja = { srodekX + przesuniecie1, POZIOM_PODLOGI - trampolina3L.rozmiar.y / 2.0f - 450 };
     trampolina3P.blok.setPosition(trampolina3P.pozycja);
 
-    
     if (graczLewy.czyLeci)
     {
         if (ScianaHP1L.hp > 0)
@@ -305,16 +325,14 @@ void Gra::tutorialE4(sf::RenderWindow& okno)
             odbicie_przeszkoda(&graczLewy, &ScianaHP1L);
             okno.draw(ScianaHP1L.blok);
         }
-        if (ScianaHP1P.hp>0)
+        if (ScianaHP1P.hp > 0)
         {
             odbicie_przeszkoda(&graczLewy, &ScianaHP1P);
             okno.draw(ScianaHP1P.blok);
-		}
+        }
 
-
-
-		odbicie_przeszkoda(&graczLewy, &ScianaL1);
-		odbicie_przeszkoda(&graczLewy, &ScianaL2);
+        odbicie_przeszkoda(&graczLewy, &ScianaL1);
+        odbicie_przeszkoda(&graczLewy, &ScianaL2);
         odbicie_przeszkoda(&graczLewy, &ScianaP1);
         odbicie_przeszkoda(&graczLewy, &ScianaP2);
         odbicie_przeszkoda(&graczLewy, &trampolina1L);
@@ -323,11 +341,7 @@ void Gra::tutorialE4(sf::RenderWindow& okno)
         odbicie_przeszkoda(&graczLewy, &trampolina1P);
         odbicie_przeszkoda(&graczLewy, &trampolina2P);
         odbicie_przeszkoda(&graczLewy, &trampolina3P);
-    
-    
-    
     }
-   
     else
     {
         if (ScianaHP1L.hp > 0)
@@ -341,7 +355,6 @@ void Gra::tutorialE4(sf::RenderWindow& okno)
             okno.draw(ScianaHP1P.blok);
         }
 
-
         odbicie_przeszkoda(&graczPrawy, &ScianaL1);
         odbicie_przeszkoda(&graczPrawy, &ScianaL2);
         odbicie_przeszkoda(&graczPrawy, &ScianaP1);
@@ -352,13 +365,10 @@ void Gra::tutorialE4(sf::RenderWindow& okno)
         odbicie_przeszkoda(&graczPrawy, &trampolina1P);
         odbicie_przeszkoda(&graczPrawy, &trampolina2P);
         odbicie_przeszkoda(&graczPrawy, &trampolina3P);
-
-    
     }
 
-
     okno.draw(ScianaL1.blok);
-	okno.draw(ScianaL2.blok);
+    okno.draw(ScianaL2.blok);
     okno.draw(ScianaP1.blok);
     okno.draw(trampolina1L.blok);
     okno.draw(trampolina2L.blok);
