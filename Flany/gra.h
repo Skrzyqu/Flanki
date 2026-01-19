@@ -27,11 +27,15 @@ public:
 
     // Render
     sf::Font czcionka;
-    sf::Text napisTury;
+
+    // UI - Instrukcje
+    sf::Text instrukcjaLewy;
+    sf::Text instrukcjaPrawy;
+
     bool czyKoniecGry = false;
     sf::Text napisWygranej;
     sf::Texture teksturaTla;
-    sf::Texture teksturaLotki; // Dodane, bo u¿ywasz w konstruktorze
+    sf::Texture teksturaLotki;
     sf::Sprite tlo;
 
     // State Machine
@@ -52,11 +56,10 @@ public:
     void aktualizuj(sf::RenderWindow& okno, sf::Vector2f grawitacja);
     void rysuj(sf::RenderWindow& okno);
 
-    // --- NOWE POZIOMY (KOLEGA) ---
+    // --- NOWE POZIOMY ---
     void tutorialE2(sf::RenderWindow& okno);
     void tutorialE3(sf::RenderWindow& okno);
-	void tutorialE4(sf::RenderWindow& okno);
-
+    void tutorialE4(sf::RenderWindow& okno);
 
 private:
     void zmienTure(sf::RenderWindow& okno);
@@ -66,4 +69,9 @@ private:
     void sprawdzWygrana();
     void logikaBota(sf::RenderWindow& okno);
     int wybranyPoziom;
+
+    void centrujTekst(sf::Text& tekst);
+
+    // NOWE: Zegar do animacji pulsowania tekstu
+    sf::Clock zegarPulsowania;
 };

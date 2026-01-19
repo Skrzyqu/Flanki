@@ -11,7 +11,6 @@
 void Gra::tutorialE2(sf::RenderWindow& okno)
 {
     float przesuniecieS1 = 200;
-
     static przeszkoda sciana1;
     sciana1.rozmiar = { 30.0f, 280.0f };
     sciana1.pozycja = { srodekX - przesuniecieS1, srodekY + 340 };

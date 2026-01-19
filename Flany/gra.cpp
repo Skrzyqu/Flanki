@@ -10,7 +10,8 @@ Gra::Gra(bool trybBot) :
     skinPrawy(1770.0f, POZIOM_PODLOGI),
     turaLewego(true),
     strzalWTok(false),
-    napisTury(czcionka),
+    instrukcjaLewy(czcionka),
+    instrukcjaPrawy(czcionka),
     napisWygranej(czcionka),
     graZBotem(trybBot)
 {
@@ -19,11 +20,9 @@ Gra::Gra(bool trybBot) :
     }
     tlo.setTexture(teksturaTla, true);
 
-    // Skalowanie t³a
     sf::Vector2u wymiaryObrazka = teksturaTla.getSize();
-    tlo.setScale({ 1920.0f / wymiaryObrazka.x, 1080.0f / wymiaryObrazka.y });
+    tlo.setScale(sf::Vector2f(1920.0f / wymiaryObrazka.x, 1080.0f / wymiaryObrazka.y));
 
-    // Tekstura lotki (opcjonalnie, z Twojego kodu)
     if (teksturaLotki.loadFromFile("lotka.png")) {
         teksturaLotki.setSmooth(true);
         graczLewy.lotka.setTexture(&teksturaLotki);
@@ -31,52 +30,71 @@ Gra::Gra(bool trybBot) :
     }
 
     // 1. POD£OGA
-    podloga.rozmiar = { 1920.0f, 1080.0f - POZIOM_PODLOGI };
-    podloga.pozycja = { 0.0f, POZIOM_PODLOGI };
+    podloga.rozmiar = sf::Vector2f(1920.0f, 1080.0f - POZIOM_PODLOGI);
+    podloga.pozycja = sf::Vector2f(0.0f, POZIOM_PODLOGI);
     podloga.blok.setSize(podloga.rozmiar);
     podloga.blok.setFillColor(sf::Color(34, 139, 34));
     podloga.blok.setPosition(podloga.pozycja);
-    podloga.czyPuszka = false; // To nie jest cel!
+    podloga.czyPuszka = false;
 
-    // 2. PUSZKA (CEL)
+    // 2. PUSZKA
     if (!puszka.tekstura.loadFromFile("beer.png")) {
         std::cerr << "[ERROR] Blad ladowania tekstury puszki!" << std::endl;
     }
     else {
         puszka.duszek.setTexture(puszka.tekstura, true);
-        puszka.duszek.setScale({ 1.5f, 1.5f });
+        puszka.duszek.setScale(sf::Vector2f(1.5f, 1.5f));
         sf::FloatRect bounds = puszka.duszek.getGlobalBounds();
-        puszka.rozmiar = bounds.size;
+        puszka.rozmiar = sf::Vector2f(bounds.size.x, bounds.size.y);
     }
-
-    // SCALENIE: Ustawiamy flagi, ¿e to jest cel gry i ma sprê¿ystoœæ
     puszka.czyPuszka = true;
     puszka.sprezystosc = 0.8f;
-
     puszka.blok.setSize(puszka.rozmiar);
-    puszka.blok.setOrigin({ puszka.rozmiar.x / 2.0f, puszka.rozmiar.y });
-
+    puszka.blok.setOrigin(sf::Vector2f(puszka.rozmiar.x / 2.0f, puszka.rozmiar.y));
     sf::FloatRect localBounds = puszka.duszek.getLocalBounds();
-    puszka.duszek.setOrigin({ localBounds.size.x / 2.0f, localBounds.size.y });
-
-    puszka.pozycja = { 960.0f, POZIOM_PODLOGI };
+    puszka.duszek.setOrigin(sf::Vector2f(localBounds.size.x / 2.0f, localBounds.size.y));
+    puszka.pozycja = sf::Vector2f(960.0f, POZIOM_PODLOGI);
     puszka.blok.setPosition(puszka.pozycja);
     puszka.duszek.setPosition(puszka.pozycja);
 
     // 3. UI
-    sf::Vector2f rozmiarPaska{ 50.0f, 400.0f };
-    tloPaskaLewego.setSize(rozmiarPaska); tloPaskaLewego.setFillColor(sf::Color(50, 50, 50)); tloPaskaLewego.setPosition({ 50.0f, 100.0f });
-    piwoLewe.setSize(rozmiarPaska); piwoLewe.setFillColor(sf::Color(255, 200, 0)); piwoLewe.setPosition({ 50.0f, 100.0f });
+    sf::Vector2f rozmiarPaska(50.0f, 400.0f);
+    tloPaskaLewego.setSize(rozmiarPaska);
+    tloPaskaLewego.setFillColor(sf::Color(50, 50, 50));
+    tloPaskaLewego.setPosition(sf::Vector2f(50.0f, 100.0f));
 
-    tloPaskaPrawego.setSize(rozmiarPaska); tloPaskaPrawego.setFillColor(sf::Color(50, 50, 50)); tloPaskaPrawego.setPosition({ 1820.0f, 100.0f });
-    piwoPrawe.setSize(rozmiarPaska); piwoPrawe.setFillColor(sf::Color(255, 200, 0)); piwoPrawe.setPosition({ 1820.0f, 100.0f });
+    piwoLewe.setSize(rozmiarPaska);
+    piwoLewe.setFillColor(sf::Color(255, 200, 0));
+    piwoLewe.setPosition(sf::Vector2f(50.0f, 100.0f));
+
+    tloPaskaPrawego.setSize(rozmiarPaska);
+    tloPaskaPrawego.setFillColor(sf::Color(50, 50, 50));
+    tloPaskaPrawego.setPosition(sf::Vector2f(1820.0f, 100.0f));
+
+    piwoPrawe.setSize(rozmiarPaska);
+    piwoPrawe.setFillColor(sf::Color(255, 200, 0));
+    piwoPrawe.setPosition(sf::Vector2f(1820.0f, 100.0f));
 
     skinLewy.ustawZwrot(true);
     skinPrawy.ustawZwrot(false);
 
-    (void)czcionka.openFromFile("arial.ttf");
-    napisTury.setCharacterSize(60); napisTury.setStyle(sf::Text::Bold);
-    napisWygranej.setCharacterSize(100); napisWygranej.setStyle(sf::Text::Bold); napisWygranej.setFillColor(sf::Color::Green);
+    if (!czcionka.openFromFile("PressStart2P-Regular.ttf")) {
+        (void)czcionka.openFromFile("arial.ttf");
+    }
+
+    // Konfiguracja tekstów instrukcji
+    instrukcjaLewy.setFont(czcionka);
+    instrukcjaLewy.setCharacterSize(15);
+    instrukcjaLewy.setFillColor(sf::Color::Black);
+
+    instrukcjaPrawy.setFont(czcionka);
+    instrukcjaPrawy.setCharacterSize(15);
+    instrukcjaPrawy.setFillColor(sf::Color::Black);
+
+    napisWygranej.setFont(czcionka);
+    napisWygranej.setCharacterSize(60);
+    napisWygranej.setStyle(sf::Text::Bold);
+    napisWygranej.setFillColor(sf::Color::Green);
 
     aktualizujNapis();
     skinLewy.ustawGotowosc(true);
@@ -84,8 +102,6 @@ Gra::Gra(bool trybBot) :
 }
 
 void Gra::obsluzWejscie(sf::RenderWindow& okno) {
-    // Twoja oryginalna funkcja z pliku gra.cpp (skopiuj j¹ stamt¹d, jest bez zmian)
-    // Skrótowo tutaj: obs³uga ESC, Spacji i Entera do picia/biegania.
     while (const std::optional event = okno.pollEvent()) {
         if (event->is<sf::Event::Closed>()) okno.close();
         if (event->is<sf::Event::KeyPressed>() && event->getIf<sf::Event::KeyPressed>()->code == sf::Keyboard::Key::Escape) okno.close();
@@ -114,14 +130,12 @@ void Gra::aktualizuj(sf::RenderWindow& okno, sf::Vector2f grawitacja) {
 
     skinLewy.aktualizujAnimacje();
     skinPrawy.aktualizujAnimacje();
-    puszka.aktualizuj(); // Twoja animacja upadku
+    puszka.aktualizuj();
     logikaBota(okno);
 
-    // Fizyka dzia³a zawsze, ¿eby pi³ka mog³a siê toczyæ
     graczLewy.aktualizujFizyke(okno, puszka, grawitacja);
     graczPrawy.aktualizujFizyke(okno, puszka, grawitacja);
 
-    // Detekcja trafienia
     if (puszka.czyTrafiona && !fazaBiegania) {
         fazaBiegania = true;
         biegWStronePuszki = true;
@@ -129,7 +143,7 @@ void Gra::aktualizuj(sf::RenderWindow& okno, sf::Vector2f grawitacja) {
         aktualizujNapis();
     }
     else if (!puszka.czyTrafiona) {
-        puszka.blok.setFillColor(sf::Color(192, 192, 192)); // Opcjonalnie reset koloru
+        puszka.blok.setFillColor(sf::Color(192, 192, 192));
     }
 
     if (!fazaBiegania) {
@@ -154,28 +168,57 @@ void Gra::rysuj(sf::RenderWindow& okno)
     okno.draw(tlo);
     okno.draw(podloga.blok);
 
-    // SCALENIE: Rysowanie poziomu trampolin
     switch (wybranyPoziom)
     {
-        case 1:
-            tutorialE2(okno);
-		    break;
-        case 2:
-			tutorialE3(okno);
-            break;
-		case 3:
-            tutorialE4(okno);
-			break;
-        default:
-            break;
+    case 1: tutorialE2(okno); break;
+    case 2: tutorialE3(okno); break;
+    case 3: tutorialE4(okno); break;
+    default: break;
     }
 
-    okno.draw(puszka.duszek); // Rysujemy sprite (nie blok)
+    okno.draw(puszka.duszek);
     okno.draw(tloPaskaLewego); okno.draw(piwoLewe);
     okno.draw(tloPaskaPrawego); okno.draw(piwoPrawe);
 
     skinLewy.rysuj(okno);
     skinPrawy.rysuj(okno);
+
+    if (!czyKoniecGry) {
+        sf::Vector2f posLewy = skinLewy.duszek.getPosition();
+        instrukcjaLewy.setPosition(sf::Vector2f(posLewy.x, posLewy.y - 140.0f));
+
+        sf::Vector2f posPrawy = skinPrawy.duszek.getPosition();
+        instrukcjaPrawy.setPosition(sf::Vector2f(posPrawy.x, posPrawy.y - 140.0f));
+
+        // --- NOWOŒÆ: Pulsowanie tekstu (Quick Time Event) ---
+        if (fazaBiegania) {
+            // Sinus daje wartoœæ od -1 do 1. Przesuwamy to na zakres np. 0.9 do 1.1
+            float czas = zegarPulsowania.getElapsedTime().asSeconds();
+            float predkoscPulsowania = 8.0f; // Szybkie bicie
+            float amplituda = 0.15f;          // Jak mocno siê powiêksza
+
+            float skala = 1.0f + std::sin(czas * predkoscPulsowania) * amplituda;
+
+            // Ustawiamy skalê (dzia³a poprawnie, bo mamy ustawiony origin na œrodek)
+            instrukcjaLewy.setScale(sf::Vector2f(skala, skala));
+            instrukcjaPrawy.setScale(sf::Vector2f(skala, skala));
+
+            // Opcjonalnie: Zmiana koloru na czerwony w rytm pulsowania
+            // if (skala > 1.0f) instrukcjaLewy.setFillColor(sf::Color(200, 0, 0));
+            // else instrukcjaLewy.setFillColor(sf::Color::Black);
+        }
+        else {
+            // Reset skali gdy nie ma QTE
+            instrukcjaLewy.setScale(sf::Vector2f(1.0f, 1.0f));
+            instrukcjaPrawy.setScale(sf::Vector2f(1.0f, 1.0f));
+
+            // Reset koloru
+            // instrukcjaLewy.setFillColor(sf::Color::Black);
+        }
+
+        okno.draw(instrukcjaLewy);
+        okno.draw(instrukcjaPrawy);
+    }
 
     if (turaLewego) okno.draw(graczLewy.lotka);
     else okno.draw(graczPrawy.lotka);
@@ -186,22 +229,17 @@ void Gra::rysuj(sf::RenderWindow& okno)
     }
 
     if (czyKoniecGry) okno.draw(napisWygranej);
-    else okno.draw(napisTury);
 
     okno.display();
 }
-
-// Reszta metod pomocniczych (zmienTure, aktualizujNapis, obsluzBieganie, obsluzPicie, sprawdzWygrana, logikaBota)
-// skopiuj je w ca³oœci ze swojego oryginalnego pliku gra.cpp - nie wymaga³y zmian.
-// Poni¿ej wklejam je dla pewnoœci, ¿e masz komplet:
 
 void Gra::zmienTure(sf::RenderWindow& okno) {
     strzalWTok = false;
     fazaBiegania = false;
     biegWStronePuszki = true;
     turaLewego = !turaLewego;
-    puszka.czyTrafiona = false; // Reset flagi trafienia logicznego
-    puszka.postaw();            // Reset animacji
+    puszka.czyTrafiona = false;
+    puszka.postaw();
 
     graczLewy.resetuj();
     graczPrawy.resetuj();
@@ -213,32 +251,40 @@ void Gra::zmienTure(sf::RenderWindow& okno) {
     aktualizujNapis();
 }
 
+void Gra::centrujTekst(sf::Text& tekst) {
+    sf::FloatRect bounds = tekst.getLocalBounds();
+    tekst.setOrigin(sf::Vector2f(std::round(bounds.size.x / 2.0f), std::round(bounds.size.y / 2.0f)));
+}
+
 void Gra::aktualizujNapis() {
     if (czyKoniecGry) return;
+
     if (fazaBiegania) {
         if (turaLewego) {
-            if (graZBotem) napisTury.setString("BOT BIEGNIE! Ty PIJ (SPACJA)!");
-            else napisTury.setString("CZERWONY PIJ (SPACJA)\nNIEBIESKI BIEGAJ (ENTER)");
-            napisTury.setFillColor(sf::Color::White);
+            instrukcjaLewy.setString("PIJ [SPACJA]");
+            if (graZBotem) instrukcjaPrawy.setString("BOT BIEGNIE");
+            else instrukcjaPrawy.setString("BIEGAJ [ENTER]");
         }
         else {
-            if (graZBotem) napisTury.setString("BOT PIJE! Ty BIEGAJ (SPACJA)!");
-            else napisTury.setString("NIEBIESKI PIJ (ENTER)\nCZERWONY BIEGAJ (SPACJA)");
-            napisTury.setFillColor(sf::Color::White);
+            instrukcjaLewy.setString("BIEGAJ [SPACJA]");
+            if (graZBotem) instrukcjaPrawy.setString("BOT PIJE");
+            else instrukcjaPrawy.setString("PIJ [ENTER]");
         }
     }
     else {
         if (turaLewego) {
-            napisTury.setString("Tura Czerwonego"); napisTury.setFillColor(sf::Color::Red);
+            instrukcjaLewy.setString("RZUCAJ");
+            instrukcjaPrawy.setString("");
         }
         else {
-            if (graZBotem) napisTury.setString("Tura Bota..."); else napisTury.setString("Tura Niebieskiego");
-            napisTury.setFillColor(sf::Color::Blue);
+            instrukcjaLewy.setString("");
+            if (graZBotem) instrukcjaPrawy.setString("TURA BOTA");
+            else instrukcjaPrawy.setString("RZUCAJ");
         }
     }
-    sf::FloatRect bounds = napisTury.getLocalBounds();
-    napisTury.setOrigin({ bounds.size.x / 2.0f, bounds.size.y / 2.0f });
-    napisTury.setPosition({ 960.0f, 100.0f });
+
+    centrujTekst(instrukcjaLewy);
+    centrujTekst(instrukcjaPrawy);
 }
 
 void Gra::obsluzPicie() {
@@ -247,14 +293,14 @@ void Gra::obsluzPicie() {
         if (poziomLewego > 0) {
             poziomLewego -= LYK_PIWA;
             if (poziomLewego <= 0.1f) { poziomLewego = 0.0f; sprawdzWygrana(); }
-            piwoLewe.setSize({ 50.0f, (poziomLewego / 100.0f) * 400.0f });
+            piwoLewe.setSize(sf::Vector2f(50.0f, (poziomLewego / 100.0f) * 400.0f));
         }
     }
     else {
         if (poziomPrawego > 0) {
             poziomPrawego -= LYK_PIWA;
             if (poziomPrawego <= 0.1f) { poziomPrawego = 0.0f; sprawdzWygrana(); }
-            piwoPrawe.setSize({ 50.0f, (poziomPrawego / 100.0f) * 400.0f });
+            piwoPrawe.setSize(sf::Vector2f(50.0f, (poziomPrawego / 100.0f) * 400.0f));
         }
     }
 }
@@ -271,10 +317,18 @@ void Gra::obsluzBieganie() {
         biegacz->duszek.setPosition(cel);
         biegacz->zatrzymajSie();
         if (biegWStronePuszki) {
-            puszka.postaw(); // Stawia puszkê
+            puszka.postaw();
             biegWStronePuszki = false;
-            napisTury.setString("WRACAJ!");
-            napisTury.setFillColor(sf::Color::Yellow);
+
+            if (turaLewego) {
+                if (graZBotem) instrukcjaPrawy.setString("BOT WRACA");
+                else instrukcjaPrawy.setString("WRACAJ [ENTER]");
+            }
+            else {
+                instrukcjaLewy.setString("WRACAJ [SPACJA]");
+            }
+            centrujTekst(instrukcjaLewy);
+            centrujTekst(instrukcjaPrawy);
         }
         else {
             zmienTure(*(sf::RenderWindow*)nullptr);
@@ -288,17 +342,38 @@ void Gra::obsluzBieganie() {
 void Gra::sprawdzWygrana() {
     bool wygrana = false;
     if (poziomLewego <= 0.1f) {
-        napisWygranej.setString("WYGRAL CZERWONY!"); napisWygranej.setFillColor(sf::Color::Red); wygrana = true;
+        // Wygra³ gracz lewy
+        if (graZBotem) {
+            napisWygranej.setString("WYGRAL GRACZ!");
+        }
+        else {
+            napisWygranej.setString("WYGRAL GRACZ 1!");
+        }
+        napisWygranej.setFillColor(sf::Color::Red);
+        wygrana = true;
     }
     else if (poziomPrawego <= 0.1f) {
-        napisWygranej.setString("WYGRAL NIEBIESKI!"); napisWygranej.setFillColor(sf::Color::Blue); wygrana = true;
+        // Wygra³ gracz prawy
+        if (graZBotem) {
+            napisWygranej.setString("WYGRAL BOT!");
+        }
+        else {
+            napisWygranej.setString("WYGRAL GRACZ 2!");
+        }
+        napisWygranej.setFillColor(sf::Color::Blue);
+        wygrana = true;
     }
+
     if (wygrana) {
         czyKoniecGry = true;
         sf::FloatRect bounds = napisWygranej.getLocalBounds();
-        napisWygranej.setOrigin({ bounds.size.x / 2.0f, bounds.size.y / 2.0f });
-        napisWygranej.setPosition({ 960.0f, 540.0f });
+        napisWygranej.setOrigin(sf::Vector2f(bounds.size.x / 2.0f, bounds.size.y / 2.0f));
+        napisWygranej.setPosition(sf::Vector2f(960.0f, 540.0f));
         fazaBiegania = false;
+
+        // Ukrywamy instrukcje po zakoñczeniu gry
+        instrukcjaLewy.setString("");
+        instrukcjaPrawy.setString("");
     }
 }
 
@@ -307,14 +382,14 @@ void Gra::logikaBota(sf::RenderWindow& okno) {
     if (!fazaBiegania && !strzalWTok && !turaLewego) {
         licznikBota++;
         if (licznikBota > 60) {
-            sf::Vector2f cel = { puszka.pozycja.x + puszka.rozmiar.x / 2.0f, puszka.pozycja.y - puszka.rozmiar.y / 2.0f };
+            sf::Vector2f cel = sf::Vector2f(puszka.pozycja.x + puszka.rozmiar.x / 2.0f, puszka.pozycja.y - puszka.rozmiar.y / 2.0f);
             sf::Vector2f start = graczPrawy.pozycja;
-            float g = 0.2f, czasLotu = 95.0f;
+            float g = 0.2f, czasLotu = 130.0f;
             float vx = (cel.x - start.x) / czasLotu;
             float vy = (cel.y - start.y - 0.5f * g * czasLotu * czasLotu) / czasLotu;
             float bladX = (rand() % 30 - 15) / 10.0f;
             float bladY = (rand() % 30 - 15) / 10.0f;
-            graczPrawy.predkosc = { vx + bladX, vy + bladY };
+            graczPrawy.predkosc = sf::Vector2f(vx + bladX, vy + bladY);
             graczPrawy.czyLeci = true;
             licznikBota = 0;
         }
